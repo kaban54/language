@@ -412,7 +412,7 @@ int Read_word (char **ch_ptr, const char *word)
 
 int Skip_comment (char **ch_ptr)
 {
-    char *ch = *ch_ptr;
+    char *ch = *ch_ptr - 1;
 
     while (*ch != '#' && *ch != '\0') ch--;
 
@@ -422,7 +422,7 @@ int Skip_comment (char **ch_ptr)
         return COMP_ERROR;
     }
 
-    *ch_ptr = ch;
+    *ch_ptr = ch - 1;
     return COMP_OK;
 }
 
