@@ -458,6 +458,11 @@ int Prog_dec_var (Prog_t *prog, char **ch_ptr, int start_of_area_index)
         return err;
     }
 
+    if (!(isalpha (**ch_ptr) || **ch_ptr == '_'))
+    {
+        printf ("Syntax error: missing variable name in variable declaration.\n");
+        return COMP_ERROR;
+    }
     char buf [MAX_NAME_LEN] = "";
 
     err = Read_var (ch_ptr, buf, MAX_NAME_LEN);
@@ -478,11 +483,9 @@ int Prog_dec_var (Prog_t *prog, char **ch_ptr, int start_of_area_index)
 
 int Prog_read_var (Prog_t *prog, char **ch_ptr)
 {
-    char *ch = *ch_ptr;
-
     char buf [MAX_NAME_LEN] = "";
 
-    int err = Read_var (&ch, buf, MAX_NAME_LEN);
+    int err = Read_var (ch_ptr, buf, MAX_NAME_LEN);
     if (err) return err;
 
     int index = GetVarIndex (prog, buf);

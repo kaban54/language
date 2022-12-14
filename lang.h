@@ -22,11 +22,12 @@ const char *const   SQRT_WORD = "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 #define CURRENT (prog -> code [prog -> index    ])
 #define NEXT    (prog -> code [prog -> index + 1])
 
-#define   IsNum(node) (node.type == TYPE_NUM)
-#define   IsVar(node) (node.type == TYPE_VAR)
-#define    IsIf(node) (node.type == TYPE_IF)
-#define  IsElse(node) (node.type == TYPE_ELSE)
-#define IsWhile(node) (node.type == TYPE_WHILE)
+#define    IsNum(node) (node.type == TYPE_NUM)
+#define    IsVar(node) (node.type == TYPE_VAR)
+#define     IsIf(node) (node.type == TYPE_IF)
+#define   IsElse(node) (node.type == TYPE_ELSE)
+#define  IsWhile(node) (node.type == TYPE_WHILE)
+#define IsVardec(node) (node.type == TYPE_VARDEC)
 
 #define        IsComma(node) (node.type == TYPE_FIC && node.value == FIC_COMMA)
 #define    IsSemicolon(node) (node.type == TYPE_FIC && node.value == FIC_SEMICOLON)
@@ -63,6 +64,8 @@ const char *const   SQRT_WORD = "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 #define IF(cond, iftrue, iffalse) CreateNode (TYPE_IF, 0, cond, CreateNode (TYPE_ELSE, 0, iftrue, iffalse))
 
 #define WHILE(cond, body) CreateNode (TYPE_WHILE, 0, cond, body)
+
+#define VARDEC(var) CreateNode (TYPE_VARDEC, var, NULL, NULL)
 
 // -----------------------------------------------------------------------
 
@@ -156,6 +159,8 @@ int GetTree (Prog_t *prog);
 TreeElem_t *GetProg (Prog_t *prog);
 
 TreeElem_t *GetBody (Prog_t *prog);
+
+TreeElem_t *GetDec (Prog_t *prog);
 
 TreeElem_t *GetIf (Prog_t *prog);
 

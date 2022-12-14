@@ -1,10 +1,10 @@
 int StackDtor(Stack_t*) at stack/stack.cpp(62):
 ERROR: 0
-stack [000000c9b93ffc60] "&vis_stk" at int GetCode(Prog_t*, char*) at front.cpp(155):
+stack [000000d98dbff880] "&vis_stk" at int GetCode(Prog_t*, char*) at front.cpp(155):
 {
 	size     = 0
 	capacity = 4
-	data [000002ab33511b38]
+	data [0000023f10371d68]
 	{
 		 [0] = POISON
 		 [1] = POISON

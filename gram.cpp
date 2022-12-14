@@ -22,12 +22,13 @@ TreeElem_t *GetBody (Prog_t *prog)
         L = GetIf (prog);
         if (!L) L = GetWhile (prog);
         if (!L) L = GetBody  (prog);
+        if (!L) L = GetDec   (prog);
         if (!L)
         {
             L = GetExp (prog);
             if (!L || !IsSemicolon (CURRENT))
             {
-                if (!IsSemicolon (CURRENT)) printf ("Syntax error: no semicolon.\n");
+                if (!IsSemicolon (CURRENT)) printf ("Syntax error: missing semicolon after expression.\n");
                 Tree_free_data (ret, NULL);
                 return nullptr;
             }
@@ -42,7 +43,18 @@ TreeElem_t *GetBody (Prog_t *prog)
     return ret;
 }
 
-
+TreeElem_t *GetDec (Prog_t *prog)
+{
+    if (!IsVardec (CURRENT)) return nullptr;
+    if (!IsSemicolon (NEXT))
+    {
+        printf ("Syntax error: missing semicolon after variable declaration.\n");
+        return nullptr;
+    }
+    int var = CURRENT.value;
+    prog -> index += 2;
+    return VARDEC (var);
+}
 
 TreeElem_t *GetIf (Prog_t *prog)
 {
