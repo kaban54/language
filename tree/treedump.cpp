@@ -31,9 +31,9 @@ void Tree_txt_dmup (Tree_t *tree, FILE *stream, const char *func_name, const cha
     fprintf (stream, "\terror    = %d\n", tree -> err);
     fprintf (stream, "\tsize     = %d\n", tree -> size);
     fprintf (stream, "\n\t");
-    
+
     if (tree -> err & TREE_DATA_CORRUPTED) fprintf (stream, "data is corrupted");
-    else Tree_print_data (stream, tree -> data.left);
+    else Tree_print_data (stream, &(tree -> data));
 
     fprintf (stream, "\n}\n");
 }

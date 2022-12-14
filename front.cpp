@@ -125,8 +125,8 @@ char *ReadProg (char *filename)
     if (text == nullptr) return nullptr;
 
     size_t len = fread (text + 1, sizeof (char), filesize, file);
-    *text         = '\0';
-    *(text + len) = '\0';
+    *text             = '\0';
+    *(text + len + 1) = '\0';
 
     fclose (file);
 
@@ -146,8 +146,9 @@ size_t GetSize (FILE *inp_file)
 int GetCode (Prog_t *prog, char *text)
 {
     if (prog == nullptr || text == nullptr) return TREE_NULLPTR_ARG;
+    if (*(text + 1) == '\0') return COMP_OK;
 
-    char *ch = text + strlen (text) - 1;
+    char *ch = text + strlen (text + 1);
     int err = COMP_OK;
 
     Stack_t vis_stk = {};
@@ -256,6 +257,12 @@ int GetCode (Prog_t *prog, char *text)
 
         if (*ch == '~')
         {
+            if (*(ch - 1) != '~')
+            {
+                ProgAddNode (prog, TYPE_OP, OP_ASSIGN);
+                ch--;
+                continue;
+            }
             int start_of_area_index = 0;
             if (vis_stk.size > 0) start_of_area_index = vis_stk.data [vis_stk.size - 1];
 
@@ -321,10 +328,6 @@ int GetCode (Prog_t *prog, char *text)
         case '*':
             ProgAddNode (prog, TYPE_OP, OP_AND);
             break;
-        
-        case '$':
-            ProgAddNode (prog, TYPE_OP, OP_ASSIGN);
-            break;
 
         case '{':
             ProgAddNode (prog, TYPE_FIC, FIC_OPENBRACKET);
@@ -336,7 +339,7 @@ int GetCode (Prog_t *prog, char *text)
 
         default:
             printf ("Compilation error: unknown symbol \"%c\".\n", *ch);
-            return COMP_UNKNOWN_SYMB;
+            return COMP_ERROR;
         }
 
         ch--;
@@ -345,7 +348,7 @@ int GetCode (Prog_t *prog, char *text)
     if (vis_stk.size != 0)
     {
         printf ("Syntax error: missing \"\\\".\n");
-        return COMP_SYNTAX_ERROR;
+        return COMP_ERROR;
     }
 
     ProgAddNode (prog, TYPE_FIC, 0);
@@ -363,17 +366,17 @@ int Read_num (char **ch_ptr, int *num)
     while (*ch >= '0' && *ch <= '2')
     {
         tern = Read_ternary (&ch);
-        *num += 2 * tern;
+        *num += 2 * (int) pow (3, tern);
         if (*ch != '\'') break;
         ch--;
         continue;
     }
-    if (*ch != '|') return COMP_SYNTAX_ERROR;
+    if (*ch != '|') return COMP_ERROR;
     ch--;
     while (*ch >= '0' && *ch <= '2')
     {
         tern = Read_ternary (&ch);
-        *num += 1 * tern;
+        *num += 1 * (int) pow (3, tern);
         if (*ch != '\'') break;
         ch--;
         continue;
@@ -401,7 +404,7 @@ int Read_word (char **ch_ptr, const char *word)
 {
     size_t len = strlen (word);
 
-    if (BackStrncmp (*ch_ptr, word + len - 1, len)) return COMP_SYNTAX_ERROR;
+    if (BackStrncmp (*ch_ptr, word + len - 1, len)) return COMP_ERROR;
 
     (*ch_ptr) -= len;
     return COMP_OK;
@@ -416,7 +419,7 @@ int Skip_comment (char **ch_ptr)
     if (*ch == '\0')
     {
         printf ("Syntax error: no end of comment.\n");
-        return COMP_SYNTAX_ERROR;
+        return COMP_ERROR;
     }
 
     *ch_ptr = ch;
@@ -434,7 +437,7 @@ int End_of_area (Prog_t *prog, Stack_t *stk)
     if (stk -> size == 0)
     {
         printf ("Syntax error: \"\\\" without \"/\".\n");
-        return COMP_SYNTAX_ERROR;
+        return COMP_ERROR;
     }
 
     int start_index = 0;
@@ -464,7 +467,7 @@ int Prog_dec_var (Prog_t *prog, char **ch_ptr, int start_of_area_index)
     if (index >= start_of_area_index)
     {
         printf ("Compilation error: multiple declaration of variable (%s).\n", buf);
-        return COMP_MULTIPLE_DEC;
+        return COMP_ERROR;
     }
 
     ProgAddVar  (prog, buf);
@@ -486,7 +489,7 @@ int Prog_read_var (Prog_t *prog, char **ch_ptr)
     if (index < 0)
     {
         printf ("Compilation error: varialbe (%s) is not declared.\n", buf);
-        return COMP_NO_DEC;
+        return COMP_ERROR;
     }
     ProgAddNode (prog, TYPE_VAR, index);
 
@@ -503,7 +506,7 @@ int Read_var (char **ch_ptr, char *buf, size_t maxlen)
         if (index >= maxlen)
         {
             printf ("Syntax error: variable name is too long.\n");
-            return COMP_SYNTAX_ERROR;
+            return COMP_ERROR;
         }
         buf [index] = *ch;
         ch--;
@@ -527,12 +530,20 @@ int BackStrncmp (const char *str1, const char *str2, size_t num)
     return 0;
 }
 
-/*
+
 int GetTree (Prog_t *prog)
 {
     //verify
 
-    size_t index = 0;
-    TreeElem_t *elem = 
+    prog -> index = 0;
+    prog -> tree.data.left = GetProg (prog);
+    if (prog -> tree.data.left == nullptr) return COMP_ERROR;
+
+    prog -> tree.size = Tree_get_size (prog -> tree.data.left);
+
+    prog -> tree.data.left -> parent = &(prog -> tree.data);
+
+    TreeVerify (&(prog -> tree));
+
+    return COMP_OK;
 }
-*/

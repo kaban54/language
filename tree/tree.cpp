@@ -169,6 +169,17 @@ void Tree_print_error (Tree_t *tree, const char *func_name, const char *file_nam
     Tree_dump (tree, func_name, file_name, line);
 }
 
+int Tree_get_size (TreeElem_t *elem)
+{
+    if (elem == nullptr) return 0;
+
+    int size = 1;
+
+    if (L) size += Tree_get_size (L);
+    if (R) size += Tree_get_size (R);
+
+    return size;
+}
 
 TreeElem_t *CreateNode (int type, int value, TreeElem_t *left, TreeElem_t *right)
 {
@@ -179,6 +190,8 @@ TreeElem_t *CreateNode (int type, int value, TreeElem_t *left, TreeElem_t *right
     VAL = value;
     L = left;
     R = right;
+    if (L) LP = elem;
+    if (R) RP = elem;
 
     return elem;
 }

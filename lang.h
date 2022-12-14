@@ -15,38 +15,48 @@ const char *const  WHILE_WORD = "88888888";
 const char *const     IF_WORD = "96";
 const char *const   ELSE_WORD = "97";
 const char *const VARDEC_WORD = "~~~~";
+const char *const   SQRT_WORD = "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
 
 //DSL --------------------------------------------------------------------
 
-#define CURRENT (prog -> code [prog -> index])
+#define CURRENT (prog -> code [prog -> index    ])
+#define NEXT    (prog -> code [prog -> index + 1])
 
-#define        IsComma(node) (node -> type == TYPE_FIC && node -> value == FIC_COMMA)
-#define    IsSemicolon(node) (node -> type == TYPE_FIC && node -> value == FIC_SEMICOLON)
-#define    IsOpenBrace(node) (node -> type == TYPE_FIC && node -> value == FIC_OPENBRACE)
-#define   IsCloseBrace(node) (node -> type == TYPE_FIC && node -> value == FIC_CLOSEBRACE)
-#define  IsOpenBracket(node) (node -> type == TYPE_FIC && node -> value == FIC_OPENBRACKET)
-#define IsCloseBracket(node) (node -> type == TYPE_FIC && node -> value == FIC_CLOSEBRACKET)
+#define   IsNum(node) (node.type == TYPE_NUM)
+#define   IsVar(node) (node.type == TYPE_VAR)
+#define    IsIf(node) (node.type == TYPE_IF)
+#define  IsElse(node) (node.type == TYPE_ELSE)
+#define IsWhile(node) (node.type == TYPE_WHILE)
+
+#define        IsComma(node) (node.type == TYPE_FIC && node.value == FIC_COMMA)
+#define    IsSemicolon(node) (node.type == TYPE_FIC && node.value == FIC_SEMICOLON)
+#define    IsOpenBrace(node) (node.type == TYPE_FIC && node.value == FIC_OPENBRACE)
+#define   IsCloseBrace(node) (node.type == TYPE_FIC && node.value == FIC_CLOSEBRACE)
+#define  IsOpenBracket(node) (node.type == TYPE_FIC && node.value == FIC_OPENBRACKET)
+#define IsCloseBracket(node) (node.type == TYPE_FIC && node.value == FIC_CLOSEBRACKET)
+
+#define   IsAssign(node) (node.type == TYPE_OP && node.value == OP_ASSIGN)
+#define       IsOr(node) (node.type == TYPE_OP && node.value == OP_OR)
+#define      IsAnd(node) (node.type == TYPE_OP && node.value == OP_AND)
+#define     IsComp(node) (node.type == TYPE_OP && node.value >= 8 && node.value <= 13)
+#define IsAddOrSub(node) (node.type == TYPE_OP && (node.value == OP_ADD || node.value == OP_SUB))
+#define IsMulOrDiv(node) (node.type == TYPE_OP && (node.value == OP_MUL || node.value == OP_DIV))
+#define     IsSqrt(node) (node.type == TYPE_OP && node.value == OP_SQRT)
+#define       IsIn(node) (node.type == TYPE_OP && node.value == OP_IN)
+#define      IsOut(node) (node.type == TYPE_OP && node.value == OP_OUT)
+
 
 #define NUM(x) CreateNode (TYPE_NUM, x, NULL, NULL)
 #define VAR(i) CreateNode (TYPE_VAR, i, NULL, NULL)
 
-#define    ADD(left, right) CreateOp (OP_ADD   , left, right)
-#define    SUB(left, right) CreateOp (OP_SUB   , left, right)
-#define    MUL(left, right) CreateOp (OP_MUL   , left, right)
-#define    DIV(left, right) CreateOp (OP_DIV   , left, right)
-#define    POW(left, right) CreateOp (OP_POW   , left, right)
-#define     EQ(left, right) CreateOp (OP_EQ    , left, right)
-#define   MORE(left, right) CreateOp (OP_MORE  , left, right)
-#define   LESS(left, right) CreateOp (OP_LESS  , left, right)
-#define MOREEQ(left, right) CreateOp (OP_MOREEQ, left, right)
-#define LESSEQ(left, right) CreateOp (OP_LESSEQ, left, right)
-#define    NEQ(left, right) CreateOp (OP_NEQ   , left, right)
 #define     OR(left, right) CreateOp (OP_OR    , left, right)
 #define    AND(left, right) CreateOp (OP_AND   , left, right)
 #define ASSIGN(left, right) CreateOp (OP_ASSIGN, left, right)
 #define    OUT(node)        CreateOp (OP_OUT   , node, NULL)
 #define    NOT(node)        CreateOp (OP_NOT   , node, NULL)
+#define   SQRT(node)        CreateOp (OP_SQRT  , node, NULL)
 #define     IN              CreateOp (OP_IN    , NULL, NULL)
+
 
 #define FIC(left, right) CreateNode (TYPE_FIC, 0, left, right)
 
@@ -97,16 +107,10 @@ enum FICNODEVALUES
     FIC_CLOSEBRACE   = 6,
 };
 
-enum COMPILATIONERRORS
+enum COMPRETVALS
 {
-    COMP_OK             = 0,
-    COMP_COMMENT_ERROR  = 1,
-    COMP_UNKNOWN_SYMB   = 2,
-    COMP_NAME_LONG      = 3,
-    COMP_MULTIPLE_DEC   = 4,
-    COMP_NO_DEC         = 5,
-    COMP_SYNTAX_ERROR   = 6,
-    
+    COMP_OK    = 0,
+    COMP_ERROR = 1,
 };
 
 
@@ -145,5 +149,35 @@ int Prog_read_var (Prog_t *prog, char **ch_ptr);
 int Read_var (char **ch_ptr, char *buf, size_t maxlen);
 
 int BackStrncmp (const char *str1, const char *str2, size_t num);
+
+int GetTree (Prog_t *prog);
+
+
+TreeElem_t *GetProg (Prog_t *prog);
+
+TreeElem_t *GetBody (Prog_t *prog);
+
+TreeElem_t *GetIf (Prog_t *prog);
+
+TreeElem_t *GetWhile (Prog_t *prog);
+
+TreeElem_t *GetCond (Prog_t *prog);
+
+TreeElem_t *GetExp (Prog_t *prog);
+
+TreeElem_t *GetAnd (Prog_t *prog);
+
+TreeElem_t *GetComp (Prog_t *prog);
+
+TreeElem_t *GetSum (Prog_t *prog);
+
+TreeElem_t *GetTerm (Prog_t *prog);
+
+TreeElem_t *GetSqrt (Prog_t *prog);
+
+TreeElem_t *GetBrack (Prog_t *prog);
+
+TreeElem_t *GetFunc (Prog_t *prog);
+
 
 #endif

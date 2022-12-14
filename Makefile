@@ -4,23 +4,26 @@ CC = g++
 all: front
 
 
-front: frontmain.o front.o tree.o treedump.o stack.o
-	$(CC) -o front.exe obj/frontmain.o obj/front.o obj/tree.o obj/treedump.o obj/stack.o $(CFLAGS)
+front: obj/frontmain.o obj/front.o obj/tree.o obj/treedump.o obj/stack.o obj/gram.o
+	$(CC) -o front.exe obj/frontmain.o obj/front.o obj/tree.o obj/treedump.o obj/stack.o obj/gram.o $(CFLAGS)
 
-frontmain.o: frontmain.cpp
+obj/frontmain.o: frontmain.cpp
 	$(CC) -o obj/frontmain.o frontmain.cpp -c $(CFLAGS)
 
-front.o: front.cpp
+obj/front.o: front.cpp
 	$(CC) -o obj/front.o front.cpp -c $(CFLAGS)
 
-tree.o: tree/tree.cpp 
+obj/tree.o: tree/tree.cpp
 	$(CC) -o obj/tree.o tree/tree.cpp -c $(CFLAGS)
 
-treedump.o: tree/treedump.cpp 
+obj/treedump.o: tree/treedump.cpp
 	$(CC) -o obj/treedump.o tree/treedump.cpp -c $(CFLAGS)
 
-stack.o: stack/stack.cpp 
+obj/stack.o: stack/stack.cpp
 	$(CC) -o obj/stack.o stack/stack.cpp -c $(CFLAGS)
+
+obj/gram.o: gram.cpp
+	$(CC) -o obj/gram.o gram.cpp -c $(CFLAGS)
 
 clean:
 	rm *.o

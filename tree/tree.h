@@ -89,7 +89,7 @@ enum OPERATORS
     OP_SUB    =  2,
     OP_MUL    =  3,
     OP_DIV    =  4,
-    OP_POW    =  5,
+    OP_SQRT   =  5,
     OP_IN     =  6,
     OP_OUT    =  7,
     OP_EQ     =  8,
@@ -185,6 +185,8 @@ void Tree_dump (Tree_t *tree, const char *func_name, const char *file_name, int 
 void Tree_generate_img (Tree_t *tree, int imgnum);
 
 void Tree_draw_data (FILE *graph, TreeElem_t *elem, int rank, int *size);
+
+int Tree_get_size (TreeElem_t *elem);
 
 TreeElem_t *CreateNode (int type, int value, TreeElem_t *left, TreeElem_t *right);
 
