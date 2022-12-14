@@ -168,3 +168,22 @@ void Tree_print_error (Tree_t *tree, const char *func_name, const char *file_nam
 
     Tree_dump (tree, func_name, file_name, line);
 }
+
+
+TreeElem_t *CreateNode (int type, int value, TreeElem_t *left, TreeElem_t *right)
+{
+    TreeElem_t *elem = TreeAllocElem ();
+    if (elem == nullptr) return nullptr;
+
+    TYPE  = type;
+    VAL = value;
+    L = left;
+    R = right;
+
+    return elem;
+}
+
+TreeElem_t *CreateOp (int op, TreeElem_t *left, TreeElem_t *right)
+{
+    return CreateNode (TYPE_OP, op, left, right);
+}

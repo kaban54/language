@@ -8,73 +8,6 @@ const char *const RIGHTCOLOR  =   "red";
 const char *const PARENTCOLOR = "black";
 
 
-void TreePrintVal (FILE *stream, TreeElem_t *elem)
-{
-    if (stream == nullptr || elem == nullptr) return;
-
-    switch (elem -> type)
-    {
-    case TYPE_OP:
-    {
-        switch (elem -> value.opval)
-        {
-        case OP_ADD:
-            fprintf (stream, "+");
-            break;
-            
-        case OP_SUB:
-            fprintf (stream, "-");
-            break;
-            
-        case OP_MUL:
-            fprintf (stream, "*");
-            break;
-            
-        case OP_DIV:
-            fprintf (stream, "/");
-            break;
-        
-        case OP_POW:
-            fprintf (stream, "^");
-            break;
-        
-        case OP_LN:
-            fprintf (stream, "ln");
-            break;
-        
-        case OP_SIN:
-            fprintf (stream, "sin");
-            break;
-        
-        case OP_COS:
-            fprintf (stream, "cos");
-            break;
-        
-        case OP_TAN:
-            fprintf (stream, "tan");
-            break;
-
-        default:
-            fprintf (stream, "unknown operator");
-            break;
-        }
-        break;
-    }
-    case TYPE_NUM:
-        if (elem -> value.dblval == (int) (elem -> value.dblval)) fprintf (stream, "%d", (int) (elem -> value.dblval));
-        else                                                      fprintf (stream, "%lf",       elem -> value.dblval );
-        break;
-
-    case TYPE_VAR:
-        fprintf (stream, "%c", elem -> value.varval);
-        break;
-
-    default:
-        fprintf (stream, "unknown type (%d)", elem -> type);
-        break;
-    }
-}
-
 void Tree_txt_dmup (Tree_t *tree, FILE *stream, const char *func_name, const char *file_name, int line)
 {
     if (stream == nullptr) stream = stdout;
@@ -108,9 +41,9 @@ void Tree_txt_dmup (Tree_t *tree, FILE *stream, const char *func_name, const cha
 void Tree_print_data (FILE *stream, TreeElem_t *elem)
 {
     fprintf (stream, "(");
-    if (elem ->  left) Tree_print_data (stream, elem ->  left);
-    TreePrintVal (stream, elem);
-    if (elem -> right) Tree_print_data (stream, elem -> right);
+    if (L) Tree_print_data (stream, L);
+    fprintf (stream, "TYPE = %d; VAL = %d", TYPE, VAL);
+    if (R) Tree_print_data (stream, R);
     fprintf (stream, ")");
 }
 
@@ -165,10 +98,9 @@ void Tree_draw_data (FILE *graph, TreeElem_t *elem, int rank, int *size)
     if (*size < 0 || elem == nullptr) return;
 
     fprintf (graph, "r%d [style = invis];\n", rank);
-    fprintf (graph, "elem%p [label = \"{type = %d|value = ", elem, elem -> type);
-    TreePrintVal (graph, elem);
+    fprintf (graph, "elem%p [label = \"{type = %d|value = %d", elem, TYPE, VAL);
 
-    fprintf (graph, "|{{adress|parent|left|right}|{%p|%p|%p|%p}}}\"", elem, elem -> parent, elem -> left, elem -> right);
+    fprintf (graph, "|{{adress|parent|left|right}|{%p|%p|%p|%p}}}\"", elem, P, L, R);
     if (rank == 0)
     {
         fprintf (graph, ", color = red, fillcolor = white");
@@ -178,19 +110,19 @@ void Tree_draw_data (FILE *graph, TreeElem_t *elem, int rank, int *size)
 
     *size -= 1;
 
-    if (elem -> parent)
+    if (P)
     {
-        fprintf (graph, "elem%p -> elem%p [color = %s, weight = 1];\n", elem, elem -> parent, PARENTCOLOR);
+        fprintf (graph, "elem%p -> elem%p [color = %s, weight = 1];\n", elem, P, PARENTCOLOR);
     }
 
-    if (elem -> left)
+    if (L)
     {
-        fprintf (graph, "elem%p -> elem%p [color = %s, weight = 1];\n", elem, elem -> left, LEFTCOLOR);
-        Tree_draw_data (graph, elem -> left, rank + 1, size);
+        fprintf (graph, "elem%p -> elem%p [color = %s, weight = 1];\n", elem, L, LEFTCOLOR);
+        Tree_draw_data (graph, L, rank + 1, size);
     }
-    if (elem -> right)
+    if (R)
     {
-        fprintf (graph, "elem%p -> elem%p [color = %s, weight = 1];\n", elem, elem -> right, RIGHTCOLOR);
-        Tree_draw_data (graph, elem -> right, rank + 1, size);
+        fprintf (graph, "elem%p -> elem%p [color = %s, weight = 1];\n", elem, R, RIGHTCOLOR);
+        Tree_draw_data (graph, R, rank + 1, size);
     }
 }

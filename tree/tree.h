@@ -11,7 +11,7 @@
 const char *const LOGFILENAME = "log/treelog.html";
 extern FILE *LOG;
 
-const double POISON_VAL = double (0xE228F3AE);
+const int POISON_VAL = 0xE228F3AE;
 
 struct TreeInfo_t
 {
@@ -106,8 +106,6 @@ enum OPERATORS
 
 //DSL --------------------------------------------------------------------
 
-#define NUM(x) CreateNum (x)
-
 #define L (elem ->   left)
 #define R (elem ->  right)
 #define P (elem -> parent)
@@ -187,5 +185,9 @@ void Tree_dump (Tree_t *tree, const char *func_name, const char *file_name, int 
 void Tree_generate_img (Tree_t *tree, int imgnum);
 
 void Tree_draw_data (FILE *graph, TreeElem_t *elem, int rank, int *size);
+
+TreeElem_t *CreateNode (int type, int value, TreeElem_t *left, TreeElem_t *right);
+
+TreeElem_t *CreateOp (int op, TreeElem_t *left, TreeElem_t *right);
 
 #endif
