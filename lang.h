@@ -23,36 +23,36 @@ const char *const   SQRT_WORD = "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 #define CURRENT (prog -> code [prog -> index    ])
 #define NEXT    (prog -> code [prog -> index + 1])
 
-#define     IsNum(node) (node.type == TYPE_NUM)
-#define     IsVar(node) (node.type == TYPE_VAR)
-#define      IsIf(node) (node.type == TYPE_IF)
-#define    IsElse(node) (node.type == TYPE_ELSE)
-#define   IsWhile(node) (node.type == TYPE_WHILE)
-#define  IsVardec(node) (node.type == TYPE_VARDEC)
-#define  IsReturn(node) (node.type == TYPE_RETURN)
-#define    IsCall(node) (node.type == TYPE_CALL)
-#define IsFuncdec(node) (node.type == TYPE_FUNCDEC)
+#define     IsNum(node) ((node).type == TYPE_NUM)
+#define     IsVar(node) ((node).type == TYPE_VAR)
+#define      IsIf(node) ((node).type == TYPE_IF)
+#define    IsElse(node) ((node).type == TYPE_ELSE)
+#define   IsWhile(node) ((node).type == TYPE_WHILE)
+#define  IsVardec(node) ((node).type == TYPE_VARDEC)
+#define  IsReturn(node) ((node).type == TYPE_RETURN)
+#define    IsCall(node) ((node).type == TYPE_CALL)
+#define IsFuncdec(node) ((node).type == TYPE_FUNCDEC)
 
-#define        IsComma(node) (node.type == TYPE_FIC && node.value == FIC_COMMA)
-#define    IsSemicolon(node) (node.type == TYPE_FIC && node.value == FIC_SEMICOLON)
-#define    IsOpenBrace(node) (node.type == TYPE_FIC && node.value == FIC_OPENBRACE)
-#define   IsCloseBrace(node) (node.type == TYPE_FIC && node.value == FIC_CLOSEBRACE)
-#define  IsOpenBracket(node) (node.type == TYPE_FIC && node.value == FIC_OPENBRACKET)
-#define IsCloseBracket(node) (node.type == TYPE_FIC && node.value == FIC_CLOSEBRACKET)
-#define    IsEndOfProg(node) (node.type == TYPE_FIC && node.value == 0)
+#define        IsComma(node) ((node).type == TYPE_FIC && (node).value == FIC_COMMA)
+#define    IsSemicolon(node) ((node).type == TYPE_FIC && (node).value == FIC_SEMICOLON)
+#define    IsOpenBrace(node) ((node).type == TYPE_FIC && (node).value == FIC_OPENBRACE)
+#define   IsCloseBrace(node) ((node).type == TYPE_FIC && (node).value == FIC_CLOSEBRACE)
+#define  IsOpenBracket(node) ((node).type == TYPE_FIC && (node).value == FIC_OPENBRACKET)
+#define IsCloseBracket(node) ((node).type == TYPE_FIC && (node).value == FIC_CLOSEBRACKET)
+#define    IsEndOfProg(node) ((node).type == TYPE_FIC && (node).value == 0)
 
-#define   IsAssign(node) (node.type == TYPE_OP && node.value == OP_ASSIGN)
-#define       IsOr(node) (node.type == TYPE_OP && node.value == OP_OR)
-#define      IsAnd(node) (node.type == TYPE_OP && node.value == OP_AND)
-#define IsAddOrSub(node) (node.type == TYPE_OP && (node.value == OP_ADD || node.value == OP_SUB))
-#define IsMulOrDiv(node) (node.type == TYPE_OP && (node.value == OP_MUL || node.value == OP_DIV))
-#define     IsSqrt(node) (node.type == TYPE_OP && node.value == OP_SQRT)
-#define       IsIn(node) (node.type == TYPE_OP && node.value == OP_IN)
-#define      IsOut(node) (node.type == TYPE_OP && node.value == OP_OUT)
+#define   IsAssign(node) ((node).type == TYPE_OP &&  (node).value == OP_ASSIGN)
+#define       IsOr(node) ((node).type == TYPE_OP &&  (node).value == OP_OR)
+#define      IsAnd(node) ((node).type == TYPE_OP &&  (node).value == OP_AND)
+#define IsAddOrSub(node) ((node).type == TYPE_OP && ((node).value == OP_ADD || (node).value == OP_SUB))
+#define IsMulOrDiv(node) ((node).type == TYPE_OP && ((node).value == OP_MUL || (node).value == OP_DIV))
+#define     IsSqrt(node) ((node).type == TYPE_OP &&  (node).value == OP_SQRT)
+#define       IsIn(node) ((node).type == TYPE_OP &&  (node).value == OP_IN)
+#define      IsOut(node) ((node).type == TYPE_OP &&  (node).value == OP_OUT)
 
-#define     IsComp(node) (node.type == TYPE_OP &&  node.value >=  8 && node.value <= 13 )
-#define   IsArithm(node) (node.type == TYPE_OP &&  node.value >=  1 && node.value <=  4 )
-#define    IsLogic(node) (node.type == TYPE_OP && (node.value == 15 || node.value == 16))
+#define     IsComp(node) ((node).type == TYPE_OP &&  (node).value >=  8 && (node).value <= 13 )
+#define   IsArithm(node) ((node).type == TYPE_OP &&  (node).value >=  1 && (node).value <=  4 )
+#define    IsLogic(node) ((node).type == TYPE_OP && ((node).value == 15 || (node).value == 16))
 
 
 #define NUM(x) CreateNode (TYPE_NUM, x, NULL, NULL)
@@ -281,7 +281,7 @@ int Compile_out (FILE *file);
 
 int Compile_not (Prog_t *prog, FILE *file);
 
-int Compile_arithm (Prog_t *prog, FILE *file, TreeElem_t *elem);
+int Compile_arithm (FILE *file, TreeElem_t *elem);
 
 int Compile_comp (Prog_t *prog, FILE *file, TreeElem_t *elem);
 

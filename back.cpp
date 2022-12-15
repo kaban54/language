@@ -172,6 +172,8 @@ int GenerateAsm (Prog_t *prog, const char *filename)
     Compile_prog (prog, file);
 
     fclose (file);
+
+    return TREE_OK;
 }
 
 int Compile_prog (Prog_t *prog, FILE *file)
@@ -184,6 +186,8 @@ int Compile_prog (Prog_t *prog, FILE *file)
     fprintf (file, "JMP main\n");
 
     if ((prog -> tree).data.left) Compile (prog, file, (prog -> tree).data.left);
+
+    return COMP_OK;
 }
 
 int Get_var_indexes (Prog_t *prog)
@@ -202,6 +206,8 @@ int Get_var_indexes (Prog_t *prog)
     }
 
     prog -> vars_in_main = count;
+
+    return COMP_OK;
 }
 
 void Count_func_vars (Prog_t *prog, TreeElem_t *func)
@@ -239,8 +245,8 @@ void Count_vars (Prog_t *prog, TreeElem_t *elem, int *count, int is_main)
         if (is_main) (prog -> var_table [elem -> value]).index_in_func = -(++(*count));
         else         (prog -> var_table [elem -> value]).index_in_func =   ++(*count) ;
     }
-    if (L) Count_vars (prog, L, count);
-    if (R) Count_vars (prog, R, count);
+    if (L) Count_vars (prog, L, count, is_main);
+    if (R) Count_vars (prog, R, count, is_main);
 }
 
 
@@ -373,7 +379,7 @@ int Compile_op (Prog_t *prog, FILE *file, TreeElem_t *elem)
 
     Compile (prog, file, R);
 
-    if (IsArithm (*elem)) return Compile_arithm (prog, file ,elem);
+    if (IsArithm (*elem)) return Compile_arithm (file ,elem);
     if (IsComp   (*elem)) return Compile_comp   (prog, file, elem);
     if (IsLogic  (*elem)) return Compile_logic  (prog, file, elem);
 
@@ -424,7 +430,7 @@ int Compile_not (Prog_t *prog, FILE *file)
     return COMP_OK;
 }
 
-int Compile_arithm (Prog_t *prog, FILE *file, TreeElem_t *elem)
+int Compile_arithm (FILE *file, TreeElem_t *elem)
 {
     switch (VAL)
     {
@@ -501,7 +507,7 @@ int Compile_logic (Prog_t *prog, FILE *file, TreeElem_t *elem)
     char jump [4] = "JNE";
     int num = 0;
     
-    if (VAL = OP_AND)
+    if (VAL == OP_AND)
     {
         strcpy (jump, "JE");
         num = 1;
@@ -548,7 +554,7 @@ int Compile_funcdec (Prog_t *prog, FILE *file, TreeElem_t *elem)
 
 int Compile_call (Prog_t *prog, FILE *file, TreeElem_t *elem)
 {
-    fprintf ("PUSH rcx\n");
+    fprintf (file, "PUSH rcx\n");
     Compile (prog, file, L);
     fprintf (file, "PUSH rdx\n"
                    "PUSH 1\n"
