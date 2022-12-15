@@ -9,6 +9,7 @@
 
 const size_t BASE_TABLE_CAPACITY =  8;
 const size_t BASE_CODE_CAPACITY  = 32;
+const size_t BASE_ARGS_CAPACITY  =  2;
 const size_t MAX_NAME_LEN  = 32;
 
 const char *const  WHILE_WORD = "88888888";
@@ -78,6 +79,9 @@ struct Var_t
 struct Func_t
 {
     char name [MAX_NAME_LEN];
+    int num_of_args;
+    int *args;
+    size_t args_capacity;
 };
 
 
@@ -123,7 +127,11 @@ int ProgDtor (Prog_t *prog);
 
 int ProgAddVar (Prog_t *prog, const char *varname);
 
+int ProgAddFunc (Prog_t *prog, const char *funcname);
+
 int GetVarIndex (Prog_t *prog, const char *name);
+
+int GetFuncIndex (Prog_t *prog, const char *name);
 
 int ProgAddNode (Prog_t *prog, int type, int value);
 
@@ -147,11 +155,21 @@ int End_of_area (Prog_t *prog, Stack_t *stk);
 
 int Prog_dec_var (Prog_t *prog, char **ch_ptr, int start_of_area_index);
 
+int Prog_dec_func (Prog_t *prog, char **ch_ptr, Stack_t *stk);
+
+int Prog_read_func_args (Prog_t *prog, char **ch_ptr, int start_of_area_index);
+
+int Func_add_arg (Func_t *func, int index);
+
+int Prog_read_call (Prog_t *prog, char **ch_ptr);
+
 int Prog_read_var (Prog_t *prog, char **ch_ptr);
 
 int Read_var (char **ch_ptr, char *buf, size_t maxlen);
 
 int BackStrncmp (const char *str1, const char *str2, size_t num);
+
+void BackSkipSpaces (char **ch_ptr);
 
 int GetTree (Prog_t *prog);
 

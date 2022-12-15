@@ -76,6 +76,25 @@ int ProgAddVar (Prog_t *prog, const char *varname)
     return TREE_OK;
 }
 
+int ProgAddFunc (Prog_t *prog, const char *funcname)
+{
+    if (prog == nullptr || funcname == nullptr) return TREE_NULLPTR_ARG;
+    if (strlen (funcname) >= MAX_NAME_LEN) return TREE_INCORRECT_FORMAT;
+
+    if (prog -> func_table_size >= prog -> func_table_capacity)
+    {
+        size_t cap = prog -> func_table_capacity;
+        prog -> func_table = (Func_t *) Recalloc (prog -> func_table, cap, MAX_NAME_LEN, cap * 2);
+        if (prog -> func_table == nullptr) return TREE_ALLOC_ERROR;
+        prog -> func_table_capacity *= 2;
+    }
+
+    strcpy ((prog -> func_table [prog -> func_table_size]).name, funcname);
+    prog -> func_table_size += 1;
+
+    return TREE_OK;
+}
+
 int GetVarIndex (Prog_t *prog, const char *name)
 {
     // verify
@@ -84,6 +103,19 @@ int GetVarIndex (Prog_t *prog, const char *name)
     for (int index = (int) (prog -> var_table_size - 1); index >= 0; index--)
     {
         if ((prog -> var_table [index]).is_visible && strcmp (name, (prog -> var_table [index]).name) == 0) return index;
+    }
+
+    return -1;
+}
+
+int GetFuncIndex (Prog_t *prog, const char *name)
+{
+    // verify
+    if (name == nullptr) return TREE_NULLPTR_ARG;
+
+    for (int index = 0; index < (int) (prog -> func_table_size); index++)
+    {
+        if (strcmp (name, (prog -> func_table [index]).name) == 0) return index;
     }
 
     return -1;
@@ -266,7 +298,25 @@ int GetCode (Prog_t *prog, char *text)
             int start_of_area_index = 0;
             if (vis_stk.size > 0) start_of_area_index = vis_stk.data [vis_stk.size - 1];
 
+            err = Read_word (&ch, VARDEC_WORD);
+            if (err)
+            {
+                printf ("Syntax error: incorrect variable declaration word.\n");
+                return err;
+            }
             err = Prog_dec_var (prog, &ch, start_of_area_index);
+            if (err) return err;
+            continue;
+        }
+        if (*ch == '<')
+        {
+            err = Prog_read_call (prog, &ch);
+            if (err) return err;
+            continue;
+        }
+        if (*ch == '^')
+        {
+            err = Prog_dec_func (prog, &ch, &vis_stk);
             if (err) return err;
             continue;
         }
@@ -335,6 +385,10 @@ int GetCode (Prog_t *prog, char *text)
         
         case '}':
             ProgAddNode (prog, TYPE_FIC, FIC_CLOSEBRACKET);
+            break;
+        
+        case '>':
+            ProgAddNode (prog, TYPE_RETURN, 0);
             break;
 
         default:
@@ -451,13 +505,6 @@ int End_of_area (Prog_t *prog, Stack_t *stk)
 
 int Prog_dec_var (Prog_t *prog, char **ch_ptr, int start_of_area_index)
 {
-    int err = Read_word (ch_ptr, VARDEC_WORD);
-    if (err)
-    {
-        printf ("Syntax error: incorrect variable declaration word.\n");
-        return err;
-    }
-
     if (!(isalpha (**ch_ptr) || **ch_ptr == '_'))
     {
         printf ("Syntax error: missing variable name in variable declaration.\n");
@@ -465,7 +512,7 @@ int Prog_dec_var (Prog_t *prog, char **ch_ptr, int start_of_area_index)
     }
     char buf [MAX_NAME_LEN] = "";
 
-    err = Read_var (ch_ptr, buf, MAX_NAME_LEN);
+    int err = Read_var (ch_ptr, buf, MAX_NAME_LEN);
     if (err) return err;
 
     int index = GetVarIndex (prog, buf);
@@ -477,6 +524,106 @@ int Prog_dec_var (Prog_t *prog, char **ch_ptr, int start_of_area_index)
 
     ProgAddVar  (prog, buf);
     ProgAddNode (prog, TYPE_VARDEC, (int) (prog -> var_table_size - 1));
+
+    return COMP_OK;
+}
+
+int Prog_dec_func (Prog_t *prog, char **ch_ptr, Stack_t *stk)
+{
+    *ch_ptr -= 1;
+
+    if (!(isalpha (**ch_ptr) || **ch_ptr == '_'))
+    {
+        printf ("Syntax error: missing function name in function declaration.\n");
+        return COMP_ERROR;
+    }
+
+    char buf [MAX_NAME_LEN] = "";
+
+    int err = Read_var (ch_ptr, buf, MAX_NAME_LEN);
+    if (err) return err;
+
+    int index = GetFuncIndex (prog, buf);
+
+    if (index >= 0)
+    {
+        printf ("Compilation error: multiple declaration of function (%s).\n", buf);
+        return COMP_ERROR;
+    }
+
+    ProgAddFunc (prog, buf);
+
+    ProgAddNode (prog, TYPE_FUNCDEC, (int) (prog -> func_table_size - 1));
+    Start_of_area (prog, stk);
+
+    err = Prog_read_func_args (prog, ch_ptr, stk -> data [stk -> size - 1]);
+    if (err) return err;
+
+    return COMP_OK;
+}
+
+int Prog_read_func_args (Prog_t *prog, char **ch_ptr, int start_of_area_index)
+{
+    BackSkipSpaces (ch_ptr);
+    char *ch = *ch_ptr;
+    int err = 0;
+
+    if (*ch != '{')
+    {
+        printf ("Syntax error: missing arguments in declaration of function.\n");
+        return COMP_ERROR;
+    }
+    ch--;
+
+    while (1)
+    {
+        BackSkipSpaces (&ch);
+        if (*ch == '}') break;
+
+        if (isalpha (*ch) || *ch == '_')
+        {
+            err = Prog_dec_var (prog, ch_ptr, start_of_area_index);
+            if (err) return err;
+            Func_add_arg (&(prog -> func_table [prog -> func_table_size - 1]), (int) (prog -> var_table_size - 1));
+        }
+        else
+        {
+            printf ("Syntax error: incorrect argumetns format in declaration of function.\n");
+            return COMP_ERROR;
+        }
+    }
+
+    ch--;
+    BackSkipSpaces (&ch);
+    if (*ch != '/')
+    {
+        printf ("Compilation error: missing body in declaration of function.\n");
+        return COMP_ERROR;
+    }
+
+    *ch_ptr = ch - 1;
+    return COMP_OK;
+}
+
+int Func_add_arg (Func_t *func, int index)
+{
+    func -> num_of_args += 1;
+    if ((int) (func -> args_capacity) < func -> num_of_args)
+    {
+        size_t cap = func -> args_capacity;
+        if (cap == 0)
+        {
+            func -> args = (int *) calloc (BASE_ARGS_CAPACITY, sizeof (func -> args [0]));
+            func -> args_capacity = BASE_ARGS_CAPACITY;
+        }
+        else
+        {
+            func -> args = (int *) Recalloc (func -> args, cap * 2, sizeof (func -> args [0]), cap);
+            func -> args_capacity = cap * 2;
+        }
+        if (func -> args == nullptr) return TREE_ALLOC_ERROR;
+    }
+    func -> args [func -> num_of_args - 1] = index;
 
     return COMP_OK;
 }
@@ -495,6 +642,32 @@ int Prog_read_var (Prog_t *prog, char **ch_ptr)
         return COMP_ERROR;
     }
     ProgAddNode (prog, TYPE_VAR, index);
+
+    return COMP_OK;
+}
+
+int Prog_read_call (Prog_t *prog, char **ch_ptr)
+{
+    *ch_ptr -= 1;
+
+    if (!(isalpha (**ch_ptr) || **ch_ptr == '_'))
+    {
+        printf ("Syntax error: missing function name in call operator.\n");
+        return COMP_ERROR;
+    }
+    char buf [MAX_NAME_LEN] = "";
+
+    int err = Read_var (ch_ptr, buf, MAX_NAME_LEN);
+    if (err) return err;
+
+    int index = GetFuncIndex (prog, buf);
+    if (index < 0)
+    {
+        printf ("Compilation error: function (%s) is not declared.\n", buf);
+        return COMP_ERROR;
+    }
+
+    ProgAddNode (prog, TYPE_CALL, index);
 
     return COMP_OK;
 }
@@ -533,6 +706,14 @@ int BackStrncmp (const char *str1, const char *str2, size_t num)
     return 0;
 }
 
+void BackSkipSpaces (char **ch_ptr)
+{
+    char *ch = *ch_ptr;
+
+    while (isspace (*ch)) ch--;
+
+    *ch_ptr = ch;
+}
 
 int GetTree (Prog_t *prog)
 {
