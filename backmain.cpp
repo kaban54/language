@@ -14,7 +14,7 @@ int main ()
 
     TreeDump (&(prog.tree));
 
-    SaveProg (&prog, "save2.txt");
+    GenerateAsm (&prog, "asm.txt");
 
     ProgDtor (&prog);
 

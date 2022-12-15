@@ -440,7 +440,11 @@ TreeElem_t *GetCall (Prog_t *prog)
         LP = elem;
         elem = L;
 
-        if (IsCloseBracket (CURRENT)) break;
+        if (IsCloseBracket (CURRENT))
+        {
+            num_of_args--;
+            break;
+        }
 
         if (!IsSemicolon (CURRENT))
         {

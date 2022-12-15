@@ -166,9 +166,12 @@ int GenerateAsm (Prog_t *prog, const char *filename)
 {
     Get_var_indexes (prog);
 
-
+    FILE *file = fopen (filename, "w");
+    if (file == nullptr) return TREE_NULLPTR_ARG;
 
     Compile_prog (prog, file);
+
+    fclose (file);
 }
 
 int Compile_prog (Prog_t *prog, FILE *file)
@@ -176,6 +179,9 @@ int Compile_prog (Prog_t *prog, FILE *file)
     fprintf (file, "#ACCURACY 1000\n");
     fprintf (file, "PUSH 0\n");
     fprintf (file, "POP rdx\n");
+    fprintf (file, "PUSH %d\n", prog -> vars_in_main);
+    fprintf (file, "POP rcx\n");
+    fprintf (file, "JMP main\n");
 
     if ((prog -> tree).data.left) Compile (prog, file, (prog -> tree).data.left);
 }
@@ -194,6 +200,8 @@ int Get_var_indexes (Prog_t *prog)
 
         elem = R;
     }
+
+    prog -> vars_in_main = count;
 }
 
 void Count_func_vars (Prog_t *prog, TreeElem_t *func)
@@ -216,18 +224,21 @@ void Count_func_vars (Prog_t *prog, TreeElem_t *func)
     return;
 }
 
-void Count_vars (Prog_t *prog, TreeElem_t *elem, int *count, int change_ret)
+void Count_vars (Prog_t *prog, TreeElem_t *elem, int *count, int is_main)
 {
     if (elem == nullptr) return;
 
-    if (change_ret && IsReturn (*elem)) 
+    if (is_main && IsReturn (*elem)) 
     {
         TYPE = TYPE_HLT;
         return;
     }
 
-    if (IsVardec (*elem)) (prog -> var_table [elem -> value]).index_in_func = (*count)++;
-    
+    if (IsVardec (*elem))
+    {
+        if (is_main) (prog -> var_table [elem -> value]).index_in_func = -(++(*count));
+        else         (prog -> var_table [elem -> value]).index_in_func =   ++(*count) ;
+    }
     if (L) Count_vars (prog, L, count);
     if (R) Count_vars (prog, R, count);
 }
@@ -240,10 +251,8 @@ int Compile (Prog_t *prog, FILE *file, TreeElem_t *elem)
     switch (TYPE)
     {
     case TYPE_FIC:
-        if (L) Compile (prog, file, L);
-        if (R) Compile (prog, file, R);
-        return COMP_OK;;
-    
+        return Compile_fic (prog, file, elem);
+
     case TYPE_NUM:
         return Compile_num (file, elem);
 
@@ -279,15 +288,29 @@ int Compile (Prog_t *prog, FILE *file, TreeElem_t *elem)
     }
 }
 
-int Compile_num (FILE *file, TreeElem_t *elem)
+int Compile_fic (Prog_t *prog, FILE *file, TreeElem_t *elem)
 {
+    if (L)
+    {   
+        Compile (prog, file, L);
+        if (LTYPE == TYPE_OP || LTYPE == TYPE_NUM || LTYPE == TYPE_VAR || LTYPE == TYPE_CALL) fprintf (file, "POP rax\n");
+    }
+    if (R) Compile (prog, file, R);
+    return COMP_OK;;
+}
+
+int Compile_num (FILE *file, TreeElem_t *elem)
+{   
     fprintf (file, "PUSH %d\n", VAL);
     return COMP_OK;
 }
 
 int Compile_var (Prog_t *prog, FILE *file, TreeElem_t *elem)
 {
-    fprintf (file, "PUSH [rdx + %d]", (prog -> var_table [VAL]).index_in_func);
+    int index_in_func = (prog -> var_table [VAL]).index_in_func;
+
+    if (index_in_func > 0) fprintf (file, "PUSH [rdx + %d]",  index_in_func);
+    else                   fprintf (file, "PUSH [%d]"      , -index_in_func);
     return COMP_OK;
 }
 
@@ -497,5 +520,65 @@ int Compile_logic (Prog_t *prog, FILE *file, TreeElem_t *elem)
                    "l%d:", jump, prog -> label, jump, prog -> label, num, prog -> label + 1, prog -> label, !num, prog -> label + 1);
     prog -> label += 2;
 
+    return COMP_OK;
+}
+
+int Compile_vardec (Prog_t *prog, FILE *file, TreeElem_t *elem)
+{
+    fprintf (file, "PUSH 0\n"
+                   "POP [rdx + %d]\n", (prog -> var_table [VAL]).index_in_func);
+    return COMP_OK;
+}
+
+int Compile_funcdec (Prog_t *prog, FILE *file, TreeElem_t *elem)
+{
+    fprintf (file, "f%d:\n", VAL);
+
+    fprintf (file, "PUSH %d\n"
+                   "POP rcx\n", (prog -> func_table [VAL]).num_of_vars);
+
+    for (int index = 1; index <= (prog -> func_table [VAL]).num_of_args; index++)
+    {
+        fprintf (file, "POP [rdx + %d]\n", index);
+    }
+    Compile (prog, file, R);
+
+    return COMP_OK;
+}
+
+int Compile_call (Prog_t *prog, FILE *file, TreeElem_t *elem)
+{
+    fprintf ("PUSH rcx\n");
+    Compile (prog, file, L);
+    fprintf (file, "PUSH rdx\n"
+                   "PUSH 1\n"
+                   "PUSH rcx\n"
+                   "ADD\n"
+                   "ADD\n"
+                   "POP rdx\n"
+                   "CALL f%d"
+                   "POP rax\n"
+                   "POP rcx\n"
+                   "PUSH rdx\n"
+                   "PUSH rcx\n"
+                   "PUSH 1\n"
+                   "ADD\n"
+                   "SUB\n"
+                   "POP rdx\n"
+                   "PUSH rax\n", VAL);
+    return COMP_OK;
+}
+
+int Compile_return (Prog_t *prog, FILE *file, TreeElem_t *elem)
+{
+    Compile (prog, file, L);
+    fprintf (file, "RET\n");
+
+    return COMP_OK;
+}
+
+int Compile_hlt (FILE *file)
+{
+    fprintf (file, "HLT\n");
     return COMP_OK;
 }

@@ -111,6 +111,7 @@ struct Prog_t
     size_t index;
     Tree_t tree;
 
+    int vars_in_main;
     int label;
 };
 
@@ -245,5 +246,55 @@ char *SkipSpacesAndComments (char *ch);
 char *SkipSpaces (char *ch);
 
 char *SkipComment (char *ch);
+
+int GenerateAsm (Prog_t *prog, const char *filename);
+
+int Compile_prog (Prog_t *prog, FILE *file);
+
+int Get_var_indexes (Prog_t *prog);
+
+void Count_func_vars (Prog_t *prog, TreeElem_t *func);
+
+void Count_vars (Prog_t *prog, TreeElem_t *elem, int *count, int is_main);
+
+int Compile (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Compile_fic (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Compile_num (FILE *file, TreeElem_t *elem);
+
+int Compile_var (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Compile_if (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Compile_while (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Compile_op (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Compile_assign (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Compile_sqrt (FILE *file);
+
+int Compile_in (FILE *file);
+
+int Compile_out (FILE *file);
+
+int Compile_not (Prog_t *prog, FILE *file);
+
+int Compile_arithm (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Compile_comp (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Compile_logic (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Compile_vardec (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Compile_funcdec (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Compile_call (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Compile_return (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Compile_hlt (FILE *file);
 
 #endif
