@@ -304,7 +304,7 @@ int GetCode (Prog_t *prog, char *text)
                 printf ("Syntax error: incorrect variable declaration word.\n");
                 return err;
             }
-            err = Prog_dec_var (prog, &ch, start_of_area_index);
+            err = Prog_dec_var (prog, &ch, start_of_area_index, 1);
             if (err) return err;
             continue;
         }
@@ -503,7 +503,7 @@ int End_of_area (Prog_t *prog, Stack_t *stk)
     return COMP_OK;
 }
 
-int Prog_dec_var (Prog_t *prog, char **ch_ptr, int start_of_area_index)
+int Prog_dec_var (Prog_t *prog, char **ch_ptr, int start_of_area_index, int addnode)
 {
     if (!(isalpha (**ch_ptr) || **ch_ptr == '_'))
     {
@@ -523,7 +523,7 @@ int Prog_dec_var (Prog_t *prog, char **ch_ptr, int start_of_area_index)
     }
 
     ProgAddVar  (prog, buf);
-    ProgAddNode (prog, TYPE_VARDEC, (int) (prog -> var_table_size - 1));
+    if (addnode) ProgAddNode (prog, TYPE_VARDEC, (int) (prog -> var_table_size - 1));
 
     return COMP_OK;
 }
@@ -582,7 +582,7 @@ int Prog_read_func_args (Prog_t *prog, char **ch_ptr, int start_of_area_index)
 
         if (isalpha (*ch) || *ch == '_')
         {
-            err = Prog_dec_var (prog, ch_ptr, start_of_area_index);
+            err = Prog_dec_var (prog, &ch, start_of_area_index, 0);
             if (err) return err;
             Func_add_arg (&(prog -> func_table [prog -> func_table_size - 1]), (int) (prog -> var_table_size - 1));
         }
@@ -600,6 +600,8 @@ int Prog_read_func_args (Prog_t *prog, char **ch_ptr, int start_of_area_index)
         printf ("Compilation error: missing body in declaration of function.\n");
         return COMP_ERROR;
     }
+
+    ProgAddNode (prog, TYPE_FIC, FIC_OPENBRACE);
 
     *ch_ptr = ch - 1;
     return COMP_OK;
@@ -730,4 +732,79 @@ int GetTree (Prog_t *prog)
     TreeVerify (&(prog -> tree));
 
     return COMP_OK;
+}
+
+int SaveProg (Prog_t *prog, const char *filename)
+{
+    if (prog == nullptr || filename == nullptr) return TREE_NULLPTR_ARG;
+    TreeVerify (&(prog -> tree));
+
+    FILE *file = fopen (filename, "w");
+    if (file == nullptr) return TREE_NULLPTR_ARG;
+
+    Save_var_table  (prog, file);
+    Save_func_table (prog, file);
+    Save_tree       (prog, file);
+
+    fclose (file);
+
+    return TREE_OK;
+}
+
+void Save_var_table (Prog_t *prog, FILE *file)
+{
+    fprintf (file, "#VAR TABLE#\n");
+    fprintf (file, "%lld\n", prog -> var_table_size);
+    for (size_t index = 0; index < prog -> var_table_size; index++)
+    {
+        fprintf (file, "\t%s\n", (prog -> var_table [index]).name);
+    }
+    fprintf (file, "\n");
+}
+
+void Save_func_table (Prog_t *prog, FILE *file)
+{
+    fprintf (file, "#FUNC TABLE#\n");
+    fprintf (file, "%lld\n", prog -> func_table_size);
+    for (size_t index = 0; index < prog -> func_table_size; index++)
+    {
+        Func_t func = prog -> func_table [index];
+        fprintf (file, "\t%s %d", func.name, func.num_of_args);
+        for (int argnum = 0; argnum < func.num_of_args; argnum++)
+        {
+            fprintf (file, " %s", (prog -> var_table [func.args [argnum]]).name);
+        }
+        fprintf (file, "\n");
+    }
+    fprintf (file, "\n");
+}
+
+void Save_tree (Prog_t *prog, FILE *file)
+{
+    fprintf (file, "#TREE#\n");
+
+    if ((prog -> tree).data.left) Print_node (file, (prog -> tree).data.left, 0);
+}
+
+void Print_node (FILE *file, TreeElem_t *elem, int num_of_spaces)
+{
+    for (int i = 0; i < num_of_spaces; i++) fputc (' ', file);
+
+    fprintf (file, "{ %d %d ", TYPE, VAL);
+    if (L)
+    {
+        fprintf (file, "\n");
+        Print_node (file, L, num_of_spaces + 1);
+    }
+    if (R)
+    {
+        fprintf (file, "\n");
+        Print_node (file, R, num_of_spaces + 1);
+    }
+    if (L || R)
+    {
+        fprintf (file, "\n");
+        for (int i = 0; i < num_of_spaces; i++) fputc (' ', file);
+    }
+    fprintf (file, "}");
 }

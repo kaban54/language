@@ -16,6 +16,8 @@ int main ()
     GetTree (&prog);
     TreeDump (&(prog.tree));
 
+    SaveProg (&prog, "save.txt");
+
     free (text);
     ProgDtor (&prog);
 

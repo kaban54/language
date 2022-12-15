@@ -3,9 +3,65 @@
 
 TreeElem_t *GetProg (Prog_t *prog)
 {
-    return GetBody (prog);
+    TreeElem_t *ret  = FIC (NULL, NULL);
+    TreeElem_t *elem = ret;
+
+    while (IsFuncdec (CURRENT))
+    {
+        L = GetFuncdec (prog);
+        if (L == nullptr)
+        {
+            Tree_free_data (ret, NULL);
+            return nullptr;
+        }
+        LP = elem;
+        R = FIC (NULL, NULL);
+        RP = elem;
+        elem = R;
+    }
+
+    R = GetBody (prog);
+    if (R == nullptr)
+    {
+        Tree_free_data (ret, NULL);
+        return nullptr;
+    }
+    RP = elem;
+    if (!IsEndOfProg (CURRENT))
+    {
+        printf ("Syntax error: there mustn't be anything after main body.\n");
+        Tree_free_data (ret, NULL);
+        return nullptr;
+    }
+
+    return ret;
 }
 
+TreeElem_t *GetFuncdec (Prog_t *prog)
+{
+    if (!IsFuncdec (CURRENT)) return nullptr;
+
+    int index = CURRENT.value;
+    prog -> index ++;
+
+    TreeElem_t *body = GetBody (prog);
+    if (body == nullptr) return nullptr;
+
+    TreeElem_t *args = FIC (NULL, NULL);
+    TreeElem_t *elem = args;
+
+    int num_of_args = (prog -> func_table [index]).num_of_args;
+    for (int argnum = 0; argnum < num_of_args; argnum++)
+    {
+        R = VAR ((prog -> func_table [index]).args [argnum]);
+        RP = elem;
+        L = FIC (NULL, NULL);
+        LP = elem;
+        elem = L;
+    }
+
+    return FUNCDEC (index, args, body);
+}
 
 TreeElem_t *GetBody (Prog_t *prog)
 {
@@ -17,29 +73,34 @@ TreeElem_t *GetBody (Prog_t *prog)
 
     while (1)
     {
-        if (IsCloseBrace (CURRENT)) break;
-
-        L = GetIf (prog);
-        if (!L) L = GetWhile (prog);
-        if (!L) L = GetBody  (prog);
-        if (!L) L = GetDec   (prog);
-        if (!L)
+        if      (IsCloseBrace (CURRENT)) break;
+        else if (IsIf         (CURRENT)) L = GetIf     (prog);
+        else if (IsWhile      (CURRENT)) L = GetWhile  (prog);
+        else if (IsVardec     (CURRENT)) L = GetDec    (prog);
+        else if (IsOpenBrace  (CURRENT)) L = GetBody   (prog);
+        else if (IsReturn     (CURRENT)) L = GetReturn (prog);
+        else
         {
             L = GetExp (prog);
-            if (!L || !IsSemicolon (CURRENT))
+            if (!IsSemicolon (CURRENT))
             {
-                if (!IsSemicolon (CURRENT)) printf ("Syntax error: missing semicolon after expression.\n");
+                printf ("Syntax error: missing semicolon after expression.\n");
                 Tree_free_data (ret, NULL);
                 return nullptr;
             }
             prog -> index ++;
         }
-
+        if (!L)
+        {
+            Tree_free_data (ret, NULL);
+            return nullptr;
+        }
         LP = elem;
         R = FIC (NULL, NULL);
         RP = elem;
         elem = R;
     }
+    prog -> index ++;
     return ret;
 }
 
@@ -54,6 +115,24 @@ TreeElem_t *GetDec (Prog_t *prog)
     int var = CURRENT.value;
     prog -> index += 2;
     return VARDEC (var);
+}
+
+TreeElem_t *GetReturn (Prog_t *prog)
+{
+    if (!IsReturn (CURRENT)) return nullptr;
+    prog -> index ++;
+
+    TreeElem_t *elem = GetBrack (prog);
+    if (elem == nullptr) return nullptr;
+
+    if (!IsSemicolon (CURRENT))
+    {
+        printf ("Syntax error: missing semicolon after return.\n");
+        return nullptr;
+    }
+    prog -> index ++;
+
+    return RETURN (elem);
 }
 
 TreeElem_t *GetIf (Prog_t *prog)
@@ -320,7 +399,67 @@ TreeElem_t *GetFunc (Prog_t *prog)
         prog -> index ++;
         return NUM (num);
     }
+    if (IsCall (CURRENT))
+    {
+        return GetCall (prog);
+    }
 
     printf ("Syntax error: incorrect expression format.\n");
     return nullptr;
+}
+
+TreeElem_t *GetCall (Prog_t *prog)
+{
+    if (!IsCall (CURRENT)) return nullptr;
+    prog -> index ++;
+    if (!IsOpenBracket (CURRENT))
+    {
+        printf ("Syntax error: incorrect call format.\n");
+        return nullptr;
+    }
+    prog -> index ++;
+
+    int num_of_args = (prog -> func_table [CURRENT.value]).num_of_args;
+
+    TreeElem_t *ret  = CALL (CURRENT.value);
+    TreeElem_t *elem = ret;
+    TreeElem_t *newelem = nullptr;
+
+    for (; num_of_args > 0; num_of_args--)
+    {
+        newelem = GetExp (prog);
+        if (newelem == nullptr)
+        {
+            Tree_free_data (ret, NULL);
+            return nullptr;
+        }
+        L = FIC (NULL, newelem);
+        LP = elem;
+        elem = L;
+
+        if (IsCloseBracket (CURRENT)) break;
+
+        if (!IsSemicolon (CURRENT))
+        {
+            printf ("Syntax error: incorrect call format.\n");
+            Tree_free_data (ret, NULL);
+            return nullptr;
+        }
+        prog -> index ++;
+    }
+    if (num_of_args > 0)
+    {
+        printf ("Compilation error: not enough arguments in function call.\n");
+        Tree_free_data (ret, NULL);
+        return nullptr;
+    }
+    if (!IsCloseBracket (CURRENT))
+    {
+        printf ("Syntax error: incorrect call format.\n");
+        Tree_free_data (ret, NULL);
+        return nullptr;
+    }
+
+    prog -> index ++;
+    return ret;
 }

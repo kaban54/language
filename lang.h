@@ -23,12 +23,15 @@ const char *const   SQRT_WORD = "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 #define CURRENT (prog -> code [prog -> index    ])
 #define NEXT    (prog -> code [prog -> index + 1])
 
-#define    IsNum(node) (node.type == TYPE_NUM)
-#define    IsVar(node) (node.type == TYPE_VAR)
-#define     IsIf(node) (node.type == TYPE_IF)
-#define   IsElse(node) (node.type == TYPE_ELSE)
-#define  IsWhile(node) (node.type == TYPE_WHILE)
-#define IsVardec(node) (node.type == TYPE_VARDEC)
+#define     IsNum(node) (node.type == TYPE_NUM)
+#define     IsVar(node) (node.type == TYPE_VAR)
+#define      IsIf(node) (node.type == TYPE_IF)
+#define    IsElse(node) (node.type == TYPE_ELSE)
+#define   IsWhile(node) (node.type == TYPE_WHILE)
+#define  IsVardec(node) (node.type == TYPE_VARDEC)
+#define  IsReturn(node) (node.type == TYPE_RETURN)
+#define    IsCall(node) (node.type == TYPE_CALL)
+#define IsFuncdec(node) (node.type == TYPE_FUNCDEC)
 
 #define        IsComma(node) (node.type == TYPE_FIC && node.value == FIC_COMMA)
 #define    IsSemicolon(node) (node.type == TYPE_FIC && node.value == FIC_SEMICOLON)
@@ -36,6 +39,7 @@ const char *const   SQRT_WORD = "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 #define   IsCloseBrace(node) (node.type == TYPE_FIC && node.value == FIC_CLOSEBRACE)
 #define  IsOpenBracket(node) (node.type == TYPE_FIC && node.value == FIC_OPENBRACKET)
 #define IsCloseBracket(node) (node.type == TYPE_FIC && node.value == FIC_CLOSEBRACKET)
+#define    IsEndOfProg(node) (node.type == TYPE_FIC && node.value == 0)
 
 #define   IsAssign(node) (node.type == TYPE_OP && node.value == OP_ASSIGN)
 #define       IsOr(node) (node.type == TYPE_OP && node.value == OP_OR)
@@ -60,13 +64,13 @@ const char *const   SQRT_WORD = "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 #define     IN              CreateOp (OP_IN    , NULL, NULL)
 
 
-#define FIC(left, right) CreateNode (TYPE_FIC, 0, left, right)
-
-#define IF(cond, iftrue, iffalse) CreateNode (TYPE_IF, 0, cond, CreateNode (TYPE_ELSE, 0, iftrue, iffalse))
-
-#define WHILE(cond, body) CreateNode (TYPE_WHILE, 0, cond, body)
-
-#define VARDEC(var) CreateNode (TYPE_VARDEC, var, NULL, NULL)
+#define FIC(left, right)           CreateNode (TYPE_FIC    , 0    , left, right)
+#define IF(cond, iftrue, iffalse)  CreateNode (TYPE_IF     , 0    , cond, CreateNode (TYPE_ELSE, 0, iftrue, iffalse))
+#define WHILE(cond, body)          CreateNode (TYPE_WHILE  , 0    , cond, body)
+#define VARDEC(var)                CreateNode (TYPE_VARDEC , var  , NULL, NULL)
+#define RETURN(node)               CreateNode (TYPE_RETURN , 0    , node, NULL)
+#define CALL(index)                CreateNode (TYPE_CALL   , index, NULL, NULL)
+#define FUNCDEC(index, args, body) CreateNode (TYPE_FUNCDEC, index, args, body)
 
 // -----------------------------------------------------------------------
 
@@ -153,7 +157,7 @@ int Start_of_area (Prog_t *prog, Stack_t *stk);
 
 int End_of_area (Prog_t *prog, Stack_t *stk);
 
-int Prog_dec_var (Prog_t *prog, char **ch_ptr, int start_of_area_index);
+int Prog_dec_var (Prog_t *prog, char **ch_ptr, int start_of_area_index, int addnode);
 
 int Prog_dec_func (Prog_t *prog, char **ch_ptr, Stack_t *stk);
 
@@ -173,12 +177,26 @@ void BackSkipSpaces (char **ch_ptr);
 
 int GetTree (Prog_t *prog);
 
+int SaveProg (Prog_t *prog, const char *filename);
+
+void Save_var_table (Prog_t *prog, FILE *file);
+
+void Save_func_table (Prog_t *prog, FILE *file);
+
+void Save_tree (Prog_t *prog, FILE *file);
+
+void Print_node (FILE *file, TreeElem_t *elem, int num_of_spaces);
+
 
 TreeElem_t *GetProg (Prog_t *prog);
+
+TreeElem_t *GetFuncdec (Prog_t *prog);
 
 TreeElem_t *GetBody (Prog_t *prog);
 
 TreeElem_t *GetDec (Prog_t *prog);
+
+TreeElem_t *GetReturn (Prog_t *prog);
 
 TreeElem_t *GetIf (Prog_t *prog);
 
@@ -202,5 +220,6 @@ TreeElem_t *GetBrack (Prog_t *prog);
 
 TreeElem_t *GetFunc (Prog_t *prog);
 
+TreeElem_t *GetCall (Prog_t *prog);
 
 #endif
