@@ -411,6 +411,9 @@ TreeElem_t *GetFunc (Prog_t *prog)
 TreeElem_t *GetCall (Prog_t *prog)
 {
     if (!IsCall (CURRENT)) return nullptr;
+
+    int func_index  = CURRENT.value;
+
     prog -> index ++;
     if (!IsOpenBracket (CURRENT))
     {
@@ -419,9 +422,9 @@ TreeElem_t *GetCall (Prog_t *prog)
     }
     prog -> index ++;
 
-    int num_of_args = (prog -> func_table [CURRENT.value]).num_of_args;
+    int num_of_args = (prog -> func_table [func_index]).num_of_args;
 
-    TreeElem_t *ret  = CALL (CURRENT.value);
+    TreeElem_t *ret  = CALL (func_index);
     TreeElem_t *elem = ret;
     TreeElem_t *newelem = nullptr;
 

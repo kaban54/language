@@ -70,6 +70,7 @@ enum TREEERRORS
 
 enum NODE_TYPES
 {
+    TYPE_HLT     = -1,
     TYPE_FIC     =  0,
     TYPE_NUM     =  1,
     TYPE_VAR     =  2,

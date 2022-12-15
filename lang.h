@@ -44,12 +44,15 @@ const char *const   SQRT_WORD = "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 #define   IsAssign(node) (node.type == TYPE_OP && node.value == OP_ASSIGN)
 #define       IsOr(node) (node.type == TYPE_OP && node.value == OP_OR)
 #define      IsAnd(node) (node.type == TYPE_OP && node.value == OP_AND)
-#define     IsComp(node) (node.type == TYPE_OP && node.value >= 8 && node.value <= 13)
 #define IsAddOrSub(node) (node.type == TYPE_OP && (node.value == OP_ADD || node.value == OP_SUB))
 #define IsMulOrDiv(node) (node.type == TYPE_OP && (node.value == OP_MUL || node.value == OP_DIV))
 #define     IsSqrt(node) (node.type == TYPE_OP && node.value == OP_SQRT)
 #define       IsIn(node) (node.type == TYPE_OP && node.value == OP_IN)
 #define      IsOut(node) (node.type == TYPE_OP && node.value == OP_OUT)
+
+#define     IsComp(node) (node.type == TYPE_OP &&  node.value >=  8 && node.value <= 13 )
+#define   IsArithm(node) (node.type == TYPE_OP &&  node.value >=  1 && node.value <=  4 )
+#define    IsLogic(node) (node.type == TYPE_OP && (node.value == 15 || node.value == 16))
 
 
 #define NUM(x) CreateNode (TYPE_NUM, x, NULL, NULL)
@@ -78,12 +81,14 @@ struct Var_t
 {
     char name [MAX_NAME_LEN];
     int is_visible;
+    int index_in_func;
 };
 
 struct Func_t
 {
     char name [MAX_NAME_LEN];
     int num_of_args;
+    int num_of_vars;
     int *args;
     size_t args_capacity;
 };
@@ -105,6 +110,8 @@ struct Prog_t
 
     size_t index;
     Tree_t tree;
+
+    int label;
 };
 
 
@@ -151,7 +158,7 @@ int Read_ternary (char **ch_ptr);
 
 int Read_word (char **ch_ptr, const char *word);
 
-int Skip_comment (char **ch_ptr);
+int Back_skip_comment (char **ch_ptr);
 
 int Start_of_area (Prog_t *prog, Stack_t *stk);
 
@@ -221,5 +228,22 @@ TreeElem_t *GetBrack (Prog_t *prog);
 TreeElem_t *GetFunc (Prog_t *prog);
 
 TreeElem_t *GetCall (Prog_t *prog);
+
+
+int LoadProg (Prog_t *prog, const char *filename);
+
+char *Load_var_table (Prog_t *prog, char *ch);
+
+char *Load_func_table (Prog_t *prog, char *ch);
+
+char *Load_tree  (Prog_t *prog, char *ch);
+
+TreeElem_t *Read_node (char **ch_ptr);
+
+char *SkipSpacesAndComments (char *ch);
+
+char *SkipSpaces (char *ch);
+
+char *SkipComment (char *ch);
 
 #endif

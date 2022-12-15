@@ -196,7 +196,7 @@ int GetCode (Prog_t *prog, char *text)
 
         if (*ch == '#')
         {
-            err = Skip_comment (&ch);
+            err = Back_skip_comment (&ch);
             if (err) return err;
             continue;
         }
@@ -464,7 +464,7 @@ int Read_word (char **ch_ptr, const char *word)
     return COMP_OK;
 }
 
-int Skip_comment (char **ch_ptr)
+int Back_skip_comment (char **ch_ptr)
 {
     char *ch = *ch_ptr - 1;
 
