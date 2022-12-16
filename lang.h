@@ -148,7 +148,7 @@ int GetFuncIndex (Prog_t *prog, const char *name);
 
 int ProgAddNode (Prog_t *prog, int type, int value);
 
-char *ReadProg (char *filename);
+char *ReadProg (const char *filename);
 
 size_t GetSize (FILE *inp_file);
 

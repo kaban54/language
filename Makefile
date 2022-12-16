@@ -52,6 +52,9 @@ obj/proc.o: proc/proc.cpp
 run: proc/run.cpp
 	$(CC) -o run.exe proc/run.cpp $(CFLAGS)
 
+compile: compile.cpp
+	$(CC) -o compile.exe compile.cpp $(CFLAGS)
+
 clean:
 	rm *.o
 	clear

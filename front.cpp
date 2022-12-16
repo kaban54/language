@@ -97,7 +97,8 @@ int ProgAddFunc (Prog_t *prog, const char *funcname)
 
 int GetVarIndex (Prog_t *prog, const char *name)
 {
-    // verify
+    if (prog == nullptr) return COMP_ERROR;
+
     if (name == nullptr) return TREE_NULLPTR_ARG;
 
     for (int index = (int) (prog -> var_table_size - 1); index >= 0; index--)
@@ -110,7 +111,8 @@ int GetVarIndex (Prog_t *prog, const char *name)
 
 int GetFuncIndex (Prog_t *prog, const char *name)
 {
-    // verify
+    if (prog == nullptr) return COMP_ERROR;
+
     if (name == nullptr) return TREE_NULLPTR_ARG;
 
     for (int index = 0; index < (int) (prog -> func_table_size); index++)
@@ -123,7 +125,7 @@ int GetFuncIndex (Prog_t *prog, const char *name)
 
 int ProgAddNode (Prog_t *prog, int type, int value)
 {
-    //verify
+    if (prog == nullptr) return COMP_ERROR;
 
     if (prog -> code_size >= prog -> code_capacity)
     {
@@ -144,7 +146,7 @@ int ProgAddNode (Prog_t *prog, int type, int value)
 }
 
 
-char *ReadProg (char *filename)
+char *ReadProg (const char *filename)
 {
     if (filename == nullptr) return nullptr;
 
@@ -265,6 +267,18 @@ int GetCode (Prog_t *prog, char *text)
                 return err;
             }
             ProgAddNode (prog, TYPE_ELSE, 0);
+            continue;
+        }
+
+        if (*ch == '$')
+        {
+            err = Read_word (&ch, SQRT_WORD);
+            if (err)
+            {
+                printf ("Syntax error: incorrect sqrt word.\n");
+                return err;
+            }
+            ProgAddNode (prog, TYPE_OP, OP_SQRT);
             continue;
         }
 
