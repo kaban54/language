@@ -454,6 +454,10 @@ TreeElem_t *GetCall (Prog_t *prog)
         }
         prog -> index ++;
     }
+
+    L = FIC (NULL, NULL);
+    LP = elem;
+
     if (num_of_args > 0)
     {
         printf ("Compilation error: not enough arguments in function call.\n");

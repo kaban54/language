@@ -64,7 +64,7 @@ int ProgAddVar (Prog_t *prog, const char *varname)
     if (prog -> var_table_size >= prog -> var_table_capacity)
     {
         size_t cap = prog -> var_table_capacity;
-        prog -> var_table = (Var_t *) Recalloc (prog -> var_table, cap, MAX_NAME_LEN, cap * 2);
+        prog -> var_table = (Var_t *) Recalloc (prog -> var_table, cap * 2, MAX_NAME_LEN, cap);
         if (prog -> var_table == nullptr) return TREE_ALLOC_ERROR;
         prog -> var_table_capacity *= 2;
     }
@@ -84,7 +84,7 @@ int ProgAddFunc (Prog_t *prog, const char *funcname)
     if (prog -> func_table_size >= prog -> func_table_capacity)
     {
         size_t cap = prog -> func_table_capacity;
-        prog -> func_table = (Func_t *) Recalloc (prog -> func_table, cap, MAX_NAME_LEN, cap * 2);
+        prog -> func_table = (Func_t *) Recalloc (prog -> func_table, cap * 2, MAX_NAME_LEN, cap);
         if (prog -> func_table == nullptr) return TREE_ALLOC_ERROR;
         prog -> func_table_capacity *= 2;
     }
@@ -128,7 +128,7 @@ int ProgAddNode (Prog_t *prog, int type, int value)
     if (prog -> code_size >= prog -> code_capacity)
     {
         size_t cap = prog -> code_capacity;
-        prog -> code = (TreeElem_t *) Recalloc (prog -> code, cap, sizeof (prog -> code [0]), cap * 2);
+        prog -> code = (TreeElem_t *) Recalloc (prog -> code, cap * 2, sizeof (prog -> code [0]), cap);
         if (prog -> code == nullptr) return TREE_ALLOC_ERROR;
         prog -> code_capacity *= 2;
     }

@@ -1,15 +1,13 @@
 int StackDtor(Stack_t*) at stack/stack.cpp(62):
 ERROR: 0
-stack [0000000d58dff5d0] "&vis_stk" at int GetCode(Prog_t*, char*) at front.cpp(187):
+stack [000000c78a1ff768] "&(cpu -> call_stk)" at int CpuCtor(Cpu_t*) at proc/proc.cpp(41):
 {
 	size     = 0
-	capacity = 4
-	data [0000011d1bc51c48]
+	capacity = 2
+	data [00000202e04c1418]
 	{
 		 [0] = POISON
 		 [1] = POISON
-		 [2] = POISON
-		 [3] = POISON
 	}
 }
 

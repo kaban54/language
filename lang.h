@@ -124,6 +124,7 @@ enum FICNODEVALUES
     FIC_CLOSEBRACKET = 4,
     FIC_OPENBRACE    = 5,
     FIC_CLOSEBRACE   = 6,
+    FIC_START        = 7,
 };
 
 enum COMPRETVALS

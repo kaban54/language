@@ -165,7 +165,8 @@ char *SkipComment (char *ch)
 int GenerateAsm (Prog_t *prog, const char *filename)
 {
     Get_var_indexes (prog);
-
+    TreeDump (&(prog -> tree));
+    
     FILE *file = fopen (filename, "w");
     if (file == nullptr) return TREE_NULLPTR_ARG;
 
@@ -195,13 +196,26 @@ int Get_var_indexes (Prog_t *prog)
     TreeElem_t *elem = (prog -> tree).data.left;
 
     int count = 0;
+    size_t func_count = 0;
 
     while (elem)
     {
-        if (L && IsFuncdec (*L)) Count_func_vars (prog, L);
+        if (func_count >= prog -> func_table_size) break;
 
-        else if (L) Count_vars (prog , L, &count, 1);
+        if (L && IsFuncdec (*L))
+        {
+            func_count ++;
+            Count_func_vars (prog, L);
+        }
 
+        elem = R;
+    }
+
+    VAL = FIC_START;
+
+    while (elem)
+    {
+        if (L) Count_vars (prog , L, &count, 1);
         elem = R;
     }
 
@@ -219,7 +233,7 @@ void Count_func_vars (Prog_t *prog, TreeElem_t *func)
     TreeElem_t *elem = func -> left;
     while (elem)
     {
-        if (R) (prog -> var_table [R -> value]).index_in_func = count++;
+        if (R) (prog -> var_table [R -> value]).index_in_func = ++count;
         elem = L;
     }
 
@@ -285,7 +299,7 @@ int Compile (Prog_t *prog, FILE *file, TreeElem_t *elem)
     
     case TYPE_RETURN:
         return Compile_return (prog, file, elem);
-    
+
     case TYPE_HLT:
         return Compile_hlt (file);
 
@@ -296,6 +310,7 @@ int Compile (Prog_t *prog, FILE *file, TreeElem_t *elem)
 
 int Compile_fic (Prog_t *prog, FILE *file, TreeElem_t *elem)
 {
+    if (VAL == FIC_START) fprintf (file, "main:\n");
     if (L)
     {   
         Compile (prog, file, L);
@@ -315,8 +330,8 @@ int Compile_var (Prog_t *prog, FILE *file, TreeElem_t *elem)
 {
     int index_in_func = (prog -> var_table [VAL]).index_in_func;
 
-    if (index_in_func > 0) fprintf (file, "PUSH [rdx + %d]",  index_in_func);
-    else                   fprintf (file, "PUSH [%d]"      , -index_in_func);
+    if (index_in_func > 0) fprintf (file, "PUSH [rdx + %d]\n",  index_in_func);
+    else                   fprintf (file, "PUSH [%d]\n"      , -index_in_func);
     return COMP_OK;
 }
 
@@ -392,7 +407,11 @@ int Compile_assign (Prog_t *prog, FILE *file, TreeElem_t *elem)
     fprintf (file, "POP rax\n"
                    "PUSH rax\n"
                    "PUSH rax\n");
-    fprintf (file, "POP [rdx + %d]\n", (prog -> var_table [LVAL]).index_in_func);
+
+    int index_in_func = (prog -> var_table [LVAL]).index_in_func;
+
+    if (index_in_func > 0) fprintf (file, "POP [rdx + %d]\n",  index_in_func);
+    else                   fprintf (file, "POP [%d]      \n", -index_in_func);
     return COMP_OK;
 }
 
@@ -531,8 +550,13 @@ int Compile_logic (Prog_t *prog, FILE *file, TreeElem_t *elem)
 
 int Compile_vardec (Prog_t *prog, FILE *file, TreeElem_t *elem)
 {
-    fprintf (file, "PUSH 0\n"
-                   "POP [rdx + %d]\n", (prog -> var_table [VAL]).index_in_func);
+    fprintf (file, "PUSH 0\n");
+
+    int index_in_func = (prog -> var_table [VAL]).index_in_func;
+
+    if (index_in_func > 0) fprintf (file, "POP [rdx + %d]\n",  index_in_func);
+    else                   fprintf (file, "POP [%d]      \n", -index_in_func);
+
     return COMP_OK;
 }
 
@@ -562,7 +586,7 @@ int Compile_call (Prog_t *prog, FILE *file, TreeElem_t *elem)
                    "ADD\n"
                    "ADD\n"
                    "POP rdx\n"
-                   "CALL f%d"
+                   "CALL f%d\n"
                    "POP rax\n"
                    "POP rcx\n"
                    "PUSH rdx\n"
