@@ -185,7 +185,7 @@ void Tree_dump (Tree_t *tree, const char *func_name, const char *file_name, int 
 
 void Tree_generate_img (Tree_t *tree, int imgnum);
 
-void Tree_draw_data (FILE *graph, TreeElem_t *elem, int rank, int *size);
+void Tree_draw_data (FILE *graph, TreeElem_t *elem, int rank, int *size, int print_adress);
 
 int Tree_get_size (TreeElem_t *elem);
 

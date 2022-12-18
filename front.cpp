@@ -64,7 +64,7 @@ int ProgAddVar (Prog_t *prog, const char *varname)
     if (prog -> var_table_size >= prog -> var_table_capacity)
     {
         size_t cap = prog -> var_table_capacity;
-        prog -> var_table = (Var_t *) Recalloc (prog -> var_table, cap * 2, MAX_NAME_LEN, cap);
+        prog -> var_table = (Var_t *) Recalloc (prog -> var_table, cap * 2, sizeof (prog -> var_table [0]), cap);
         if (prog -> var_table == nullptr) return TREE_ALLOC_ERROR;
         prog -> var_table_capacity *= 2;
     }
@@ -84,7 +84,7 @@ int ProgAddFunc (Prog_t *prog, const char *funcname)
     if (prog -> func_table_size >= prog -> func_table_capacity)
     {
         size_t cap = prog -> func_table_capacity;
-        prog -> func_table = (Func_t *) Recalloc (prog -> func_table, cap * 2, MAX_NAME_LEN, cap);
+        prog -> func_table = (Func_t *) Recalloc (prog -> func_table, cap * 2, sizeof (prog -> func_table [0]), cap);
         if (prog -> func_table == nullptr) return TREE_ALLOC_ERROR;
         prog -> func_table_capacity *= 2;
     }
@@ -309,6 +309,7 @@ int GetCode (Prog_t *prog, char *text)
                 ch--;
                 continue;
             }
+
             int start_of_area_index = 0;
             if (vis_stk.size > 0) start_of_area_index = vis_stk.data [vis_stk.size - 1];
 
@@ -496,7 +497,7 @@ int Back_skip_comment (char **ch_ptr)
 
 int Start_of_area (Prog_t *prog, Stack_t *stk)
 {
-    StackPush (stk, (int) (prog -> func_table_size));
+    StackPush (stk, (int) (prog -> var_table_size));
     return COMP_OK;
 }
 
@@ -767,7 +768,7 @@ int SaveProg (Prog_t *prog, const char *filename)
 
 void Save_var_table (Prog_t *prog, FILE *file)
 {
-    fprintf (file, "#VAR TABLE#\n");
+    fprintf (file, "[VAR TABLE]\n");
     fprintf (file, "%lld\n", prog -> var_table_size);
     for (size_t index = 0; index < prog -> var_table_size; index++)
     {
@@ -778,7 +779,7 @@ void Save_var_table (Prog_t *prog, FILE *file)
 
 void Save_func_table (Prog_t *prog, FILE *file)
 {
-    fprintf (file, "#FUNC TABLE#\n");
+    fprintf (file, "[FUNC TABLE]\n");
     fprintf (file, "%lld\n", prog -> func_table_size);
     for (size_t index = 0; index < prog -> func_table_size; index++)
     {
@@ -795,7 +796,7 @@ void Save_func_table (Prog_t *prog, FILE *file)
 
 void Save_tree (Prog_t *prog, FILE *file)
 {
-    fprintf (file, "#TREE#\n");
+    fprintf (file, "[TREE]\n");
 
     if ((prog -> tree).data.left) Print_node (file, (prog -> tree).data.left, 0);
 }

@@ -1,0 +1,461 @@
+#ACCURACY 1000
+PUSH 0
+POP rdx
+PUSH 4
+POP rcx
+JMP main
+PUSH 0
+POP [0]      
+f0:
+PUSH 2
+POP rcx
+POP [rdx + 1]
+POP [rdx + 2]
+PUSH [0]
+POP rax
+PUSH rax
+PUSH rax
+OUT
+POP rax
+PUSH [0]
+PUSH 0
+JA l0
+PUSH 0
+JMP l1
+l0:
+PUSH 1
+l1:
+PUSH 0
+JE l2
+PUSH [rdx + 1]
+POP rax
+PUSH rax
+PUSH rax
+OUT
+POP rax
+PUSH [0]
+PUSH 1
+JA l4
+PUSH 0
+JMP l5
+l4:
+PUSH 1
+l5:
+PUSH 0
+JE l6
+PUSH [rdx + 2]
+POP rax
+PUSH rax
+PUSH rax
+OUT
+POP rax
+JMP l7
+l6:
+l7:
+JMP l3
+l2:
+l3:
+PUSH 0
+RET
+f1:
+PUSH 2
+POP rcx
+POP [rdx + 1]
+POP [rdx + 2]
+PUSH [rdx + 1]
+PUSH 0
+JE l8
+PUSH 0
+JMP l9
+l8:
+PUSH 1
+l9:
+PUSH 0
+JE l10
+PUSH 0
+PUSH 1
+SUB
+POP rax
+PUSH rax
+PUSH rax
+POP [0]      
+POP rax
+PUSH 0
+RET
+JMP l11
+l10:
+PUSH [0]
+PUSH 1
+ADD
+POP rax
+PUSH rax
+PUSH rax
+POP [0]      
+POP rax
+PUSH 0
+PUSH [rdx + 2]
+PUSH [rdx + 1]
+DIV
+SUB
+RET
+l11:
+f2:
+PUSH 6
+POP rcx
+POP [rdx + 1]
+POP [rdx + 2]
+POP [rdx + 3]
+PUSH [rdx + 2]
+POP rax
+PUSH 0
+POP [rdx + 4]
+PUSH 0
+POP [rdx + 5]
+PUSH [rdx + 1]
+POP rax
+PUSH [rdx + 2]
+POP rax
+PUSH 0
+POP rax
+PUSH rax
+PUSH rax
+POP [0]      
+POP rax
+PUSH [rdx + 1]
+PUSH 0
+JE l12
+PUSH 0
+JMP l13
+l12:
+PUSH 1
+l13:
+PUSH 0
+JE l14
+PUSH rcx
+PUSH [rdx + 3]
+PUSH [rdx + 2]
+PUSH rdx
+PUSH 1
+PUSH rcx
+ADD
+ADD
+POP rdx
+CALL f1
+POP rax
+POP rcx
+PUSH rdx
+PUSH rcx
+PUSH 1
+ADD
+SUB
+POP rdx
+PUSH rax
+POP rax
+PUSH rax
+PUSH rax
+POP [rdx + 5]
+POP rax
+JMP l15
+l14:
+PUSH 0
+POP rax
+PUSH rax
+PUSH rax
+POP [0]      
+POP rax
+PUSH [rdx + 3]
+PUSH 0
+JE l16
+PUSH 0
+JMP l17
+l16:
+PUSH 1
+l17:
+PUSH 0
+JE l18
+PUSH rcx
+PUSH [rdx + 2]
+PUSH [rdx + 1]
+PUSH rdx
+PUSH 1
+PUSH rcx
+ADD
+ADD
+POP rdx
+CALL f1
+POP rax
+POP rcx
+PUSH rdx
+PUSH rcx
+PUSH 1
+ADD
+SUB
+POP rdx
+PUSH rax
+POP rax
+PUSH rax
+PUSH rax
+POP [rdx + 5]
+POP rax
+PUSH [rdx + 5]
+PUSH 0
+JNE l20
+PUSH 0
+JMP l21
+l20:
+PUSH 1
+l21:
+PUSH 0
+JE l22
+PUSH 0
+POP rax
+PUSH rax
+PUSH rax
+POP [rdx + 4]
+POP rax
+PUSH [0]
+PUSH 1
+ADD
+POP rax
+PUSH rax
+PUSH rax
+POP [0]      
+POP rax
+JMP l23
+l22:
+l23:
+JMP l19
+l18:
+PUSH [rdx + 2]
+PUSH 0
+JE l24
+PUSH 0
+JMP l25
+l24:
+PUSH 1
+l25:
+PUSH 0
+JE l26
+PUSH [rdx + 3]
+PUSH 0
+JA l28
+PUSH 0
+JMP l29
+l28:
+PUSH 1
+l29:
+PUSH 0
+JE l30
+PUSH 0
+POP rax
+PUSH rax
+PUSH rax
+POP [0]      
+POP rax
+JMP l31
+l30:
+l31:
+PUSH 0
+PUSH [rdx + 3]
+SUB
+SQRT
+POP rax
+PUSH rax
+PUSH rax
+POP [rdx + 5]
+POP rax
+PUSH 0
+PUSH [rdx + 5]
+SUB
+POP rax
+PUSH rax
+PUSH rax
+POP [rdx + 4]
+POP rax
+PUSH 2
+POP rax
+PUSH rax
+PUSH rax
+POP [0]      
+POP rax
+JMP l27
+l26:
+l27:
+PUSH 0
+POP [rdx + 6]
+PUSH [rdx + 2]
+PUSH [rdx + 2]
+MUL
+PUSH 4
+PUSH [rdx + 1]
+MUL
+PUSH [rdx + 3]
+MUL
+SUB
+POP rax
+PUSH rax
+PUSH rax
+POP [rdx + 6]
+POP rax
+PUSH [rdx + 6]
+PUSH 0
+JB l32
+PUSH 0
+JMP l33
+l32:
+PUSH 1
+l33:
+PUSH 0
+JE l34
+PUSH 0
+POP rax
+PUSH rax
+PUSH rax
+POP [0]      
+POP rax
+JMP l35
+l34:
+PUSH [rdx + 6]
+PUSH 0
+JE l36
+PUSH 0
+JMP l37
+l36:
+PUSH 1
+l37:
+PUSH 0
+JE l38
+PUSH 1
+POP rax
+PUSH rax
+PUSH rax
+POP [0]      
+POP rax
+PUSH 0
+PUSH [rdx + 2]
+PUSH 2
+PUSH [rdx + 1]
+MUL
+DIV
+SUB
+POP rax
+PUSH rax
+PUSH rax
+POP [rdx + 5]
+POP rax
+JMP l39
+l38:
+PUSH 2
+POP rax
+PUSH rax
+PUSH rax
+POP [0]      
+POP rax
+PUSH [rdx + 6]
+SQRT
+POP rax
+PUSH rax
+PUSH rax
+POP [rdx + 6]
+POP rax
+PUSH 0
+PUSH [rdx + 2]
+SUB
+PUSH [rdx + 6]
+SUB
+PUSH [rdx + 1]
+PUSH 2
+MUL
+DIV
+POP rax
+PUSH rax
+PUSH rax
+POP [rdx + 5]
+POP rax
+PUSH 0
+PUSH [rdx + 2]
+SUB
+PUSH [rdx + 6]
+ADD
+PUSH [rdx + 1]
+PUSH 2
+MUL
+DIV
+POP rax
+PUSH rax
+PUSH rax
+POP [rdx + 4]
+POP rax
+l39:
+l35:
+l19:
+l15:
+PUSH rcx
+PUSH [rdx + 4]
+PUSH [rdx + 5]
+PUSH rdx
+PUSH 1
+PUSH rcx
+ADD
+ADD
+POP rdx
+CALL f0
+POP rax
+POP rcx
+PUSH rdx
+PUSH rcx
+PUSH 1
+ADD
+SUB
+POP rdx
+PUSH rax
+POP rax
+PUSH 0
+RET
+main:
+PUSH 0
+POP [2]      
+PUSH 0
+POP [3]      
+PUSH 0
+POP [4]      
+IN
+POP rax
+PUSH rax
+PUSH rax
+POP [2]      
+POP rax
+IN
+POP rax
+PUSH rax
+PUSH rax
+POP [3]      
+POP rax
+IN
+POP rax
+PUSH rax
+PUSH rax
+POP [4]      
+POP rax
+PUSH rcx
+PUSH [4]
+PUSH [3]
+PUSH [2]
+PUSH rdx
+PUSH 1
+PUSH rcx
+ADD
+ADD
+POP rdx
+CALL f2
+POP rax
+POP rcx
+PUSH rdx
+PUSH rcx
+PUSH 1
+ADD
+SUB
+POP rdx
+PUSH rax
+POP rax
+HLT

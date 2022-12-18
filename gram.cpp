@@ -6,6 +6,15 @@ TreeElem_t *GetProg (Prog_t *prog)
     TreeElem_t *ret  = FIC (NULL, NULL);
     TreeElem_t *elem = ret;
 
+    while (IsVardec  (CURRENT))
+    {
+        L = GetDec (prog);
+        
+        LP = elem;
+        R = FIC (NULL, NULL);
+        RP = elem;
+        elem = R;
+    }
     while (IsFuncdec (CURRENT))
     {
         L = GetFuncdec (prog);

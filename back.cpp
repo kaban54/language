@@ -153,11 +153,11 @@ char *SkipSpaces (char *ch)
 char *SkipComment (char *ch)
 {
     if (ch == nullptr) return nullptr;
-    if (*ch != '#') return ch;
+    if (*ch != '[') return ch;
     ch++;
 
-    while (*ch != '#' && *ch != '\0') ch++;
-    if (*ch == '#') return ch + 1;
+    while (*ch != ']' && *ch != '\0') ch++;
+    if (*ch == ']') return ch + 1;
     return ch;
 }
 
@@ -197,6 +197,13 @@ int Get_var_indexes (Prog_t *prog)
 
     int count = 0;
     size_t func_count = 0;
+
+    while (elem)
+    {
+        if (!L || !IsVardec (*L)) break;
+        count++;
+        elem = R;
+    }
 
     while (elem)
     {

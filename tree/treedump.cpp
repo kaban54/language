@@ -8,6 +8,24 @@ const char *const RIGHTCOLOR  =   "red";
 const char *const PARENTCOLOR = "black";
 
 
+const char *const FICCOLOR     = "lightgrey";
+const char *const OPCOLOR      = "lightblue";
+const char *const NUMCOLOR     = "blue";
+const char *const VARCOLOR     = "lightgreen";
+const char *const IFCOLOR      = "lightyellow";
+const char *const ELSECOLOR    = "lightyellow";
+const char *const WHILECOLOR   = "lightyellow";
+const char *const VARDECCOLOR  = "green";
+const char *const CALLCOLOR    = "orange";
+const char *const FUNCDECCOLOR = "purple";
+const char *const RETURNCOLOR  = "purple";
+
+const char *const COLORS[] = {"lightgrey", "blue", "lightgreen", "lightyellow", "lightyellow", "lightyellow",
+                              "lightblue", "green", "purple", "orange", "purple"};
+const char *const TYPES [] = {"FIC", "NUM", "VAR", "IF", "ELSE", "WHILE", "OP", "VARDEC", "FUNCDEC", "CALL", "RETURN"};
+
+
+
 void Tree_txt_dmup (Tree_t *tree, FILE *stream, const char *func_name, const char *file_name, int line)
 {
     if (stream == nullptr) stream = stdout;
@@ -77,12 +95,12 @@ void Tree_generate_img (Tree_t *tree, int imgnum)
     if (graph == nullptr) return;
 
     fprintf (graph, "digraph {\n rankdir = TB;\n"
-                    "node [shape = record, fontsize = 12, style = \"rounded, filled\", fillcolor = lightblue];\n"
+                    "node [shape = record, fontsize = 12, style = \"rounded, filled\", fillcolor = white];\n"
                     "graph [splines = true];\n");
     
     int size = tree -> size;
 
-    Tree_draw_data (graph, &(tree -> data), 0, &size);
+    Tree_draw_data (graph, &(tree -> data), 0, &size, 0);
 
     fprintf (graph, "}");
 
@@ -93,18 +111,25 @@ void Tree_generate_img (Tree_t *tree, int imgnum)
     system (cmd);
 }
 
-void Tree_draw_data (FILE *graph, TreeElem_t *elem, int rank, int *size)
+void Tree_draw_data (FILE *graph, TreeElem_t *elem, int rank, int *size, int print_adress)
 {
     if (*size < 0 || elem == nullptr) return;
 
     fprintf (graph, "r%d [style = invis];\n", rank);
-    fprintf (graph, "elem%p [label = \"{type = %d|value = %d", elem, TYPE, VAL);
+    if (TYPE >= 0 && TYPE <= 10) fprintf (graph, "elem%p [label = \"{type = %s|value = %d", elem, TYPES [TYPE], VAL);
+    else                         fprintf (graph, "elem%p [label = \"{type = %d|value = %d", elem, TYPE        , VAL);
 
-    fprintf (graph, "|{{adress|parent|left|right}|{%p|%p|%p|%p}}}\"", elem, P, L, R);
+
+    if (print_adress) fprintf (graph, "|{{adress|parent|left|right}|{%p|%p|%p|%p}}}\"", elem, P, L, R);
+    else              fprintf (graph, "}\"");
+
+    if (TYPE >= 0 && TYPE <= 10) fprintf (graph, ", fillcolor = %s", COLORS [TYPE]);
+
     if (rank == 0)
     {
-        fprintf (graph, ", color = red, fillcolor = white");
+        fprintf (graph, ", color = red");
     }
+
     fprintf (graph, "];\n");
     fprintf (graph, "{rank = same; \"r%d\"; \"elem%p\"}", rank, elem);
 
@@ -118,11 +143,11 @@ void Tree_draw_data (FILE *graph, TreeElem_t *elem, int rank, int *size)
     if (L)
     {
         fprintf (graph, "elem%p -> elem%p [color = %s, weight = 1];\n", elem, L, LEFTCOLOR);
-        Tree_draw_data (graph, L, rank + 1, size);
+        Tree_draw_data (graph, L, rank + 1, size, print_adress);
     }
     if (R)
     {
         fprintf (graph, "elem%p -> elem%p [color = %s, weight = 1];\n", elem, R, RIGHTCOLOR);
-        Tree_draw_data (graph, R, rank + 1, size);
+        Tree_draw_data (graph, R, rank + 1, size, print_adress);
     }
 }

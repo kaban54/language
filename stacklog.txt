@@ -1,27 +1,13 @@
-int StackPop(Stack_t*, Elem_t*) at stack/stack.cpp(121):
+int StackDtor(Stack_t*) at stack/stack.cpp(62):
 ERROR: 0
-stack [00000021f17ff6c8] "&(cpu -> stk)" at int CpuCtor(Cpu_t*) at proc/proc.cpp(42):
+stack [00000059a4fff538] "&(cpu -> call_stk)" at int CpuCtor(Cpu_t*) at proc/proc.cpp(41):
 {
 	size     = 0
-	capacity = 16
-	data [0000019ce0cc14b8]
+	capacity = 2
+	data [000001887cf01418]
 	{
 		 [0] = POISON
 		 [1] = POISON
-		 [2] = POISON
-		 [3] = POISON
-		 [4] = POISON
-		 [5] = POISON
-		 [6] = POISON
-		 [7] = POISON
-		 [8] = POISON
-		 [9] = POISON
-		 [10] = POISON
-		 [11] = POISON
-		 [12] = POISON
-		 [13] = POISON
-		 [14] = POISON
-		 [15] = POISON
 	}
 }
 
