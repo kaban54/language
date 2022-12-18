@@ -254,10 +254,21 @@ void Count_vars (Prog_t *prog, TreeElem_t *elem, int *count, int is_main)
         if (is_main) (prog -> var_table [elem -> value]).index_in_func = -(++(*count));
         else         (prog -> var_table [elem -> value]).index_in_func =   ++(*count) ;
     }
+
+    if (IsCall (*elem)) Replace_fic_with_call (L);
+
     if (L) Count_vars (prog, L, count, is_main);
     if (R) Count_vars (prog, R, count, is_main);
 }
 
+void Replace_fic_with_call (TreeElem_t *elem)
+{
+    if (elem == nullptr) return;
+    if (TYPE == TYPE_FIC) VAL = FIC_CALL;
+
+    Replace_fic_with_call (L);
+    Replace_fic_with_call (R);
+}
 
 int Compile (Prog_t *prog, FILE *file, TreeElem_t *elem)
 {
@@ -309,9 +320,13 @@ int Compile_fic (Prog_t *prog, FILE *file, TreeElem_t *elem)
     if (L)
     {   
         Compile (prog, file, L);
-        if (LTYPE == TYPE_OP || LTYPE == TYPE_NUM || LTYPE == TYPE_VAR || LTYPE == TYPE_CALL) fprintf (file, "POP rax\n");
+        if (VAL != FIC_CALL && (LTYPE == TYPE_OP || LTYPE == TYPE_NUM || LTYPE == TYPE_VAR || LTYPE == TYPE_CALL)) fprintf (file, "POP rax\n");
     }
-    if (R) Compile (prog, file, R);
+    if (R)
+    {   
+        Compile (prog, file, R);
+        if (VAL != FIC_CALL && (RTYPE == TYPE_OP || RTYPE == TYPE_NUM || RTYPE == TYPE_VAR || RTYPE == TYPE_CALL)) fprintf (file, "POP rax\n");
+    }
     return COMP_OK;;
 }
 

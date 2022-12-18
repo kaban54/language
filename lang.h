@@ -129,6 +129,7 @@ enum FICNODEVALUES
     FIC_OPENBRACE    = 5,
     FIC_CLOSEBRACE   = 6,
     FIC_START        = 7,
+    FIC_CALL         = 8,
 };
 
 enum COMPRETVALS
@@ -263,6 +264,8 @@ int Get_var_indexes (Prog_t *prog);
 void Count_func_vars (Prog_t *prog, TreeElem_t *func);
 
 void Count_vars (Prog_t *prog, TreeElem_t *elem, int *count, int is_main);
+
+void Replace_fic_with_call (TreeElem_t *elem);
 
 int Compile (Prog_t *prog, FILE *file, TreeElem_t *elem);
 
