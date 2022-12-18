@@ -1,8 +1,17 @@
 CFLAGS += -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Winline -Wunreachable-code -Wmissing-declarations -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Weffc++ -Wmain -Wextra -Wall -g -pipe -fexceptions -Wconversion -Wctor-dtor-privacy -Wempty-body -Wformat-security -Wformat=2 -Wignored-qualifiers -Wlogical-op -Wno-missing-field-initializers -Wnon-virtual-dtor -Woverloaded-virtual -Wpointer-arith -Wsign-promo -Wstack-usage=8192 -Wstrict-aliasing -Wstrict-null-sentinel -Wtype-limits -Wwrite-strings -D_DEBUG -D_EJUDGE_CLIENT_SIDE
 CC = g++
 
-all: front back asm proc run
+all: front back asm proc run revfront
 
+
+revfront: obj/revfront.o obj/back.o obj/revfrontmain.o obj/tree.o obj/treedump.o obj/stack.o obj/front.o obj/gram.o
+	$(CC) -o revfront.exe obj/revfront.o obj/revfrontmain.o obj/back.o obj/tree.o obj/treedump.o obj/stack.o obj/front.o obj/gram.o $(CFLAGS)
+
+obj/revfrontmain.o: revfrontmain.cpp
+	$(CC) -o obj/revfrontmain.o revfrontmain.cpp -c $(CFLAGS)
+
+obj/revfront.o: revfront.cpp
+	$(CC) -o obj/revfront.o revfront.cpp -c $(CFLAGS)
 
 back: obj/back.o obj/backmain.o obj/tree.o obj/treedump.o obj/stack.o obj/front.o obj/gram.o
 	$(CC) -o back.exe obj/backmain.o obj/back.o obj/tree.o obj/treedump.o obj/stack.o obj/front.o obj/gram.o $(CFLAGS)

@@ -6,17 +6,21 @@
 #include "math.h"
 #include "sys/stat.h"
 
-
+const size_t BUFSIZE = 256;
 const size_t BASE_TABLE_CAPACITY =  8;
 const size_t BASE_CODE_CAPACITY  = 32;
 const size_t BASE_ARGS_CAPACITY  =  2;
-const size_t MAX_NAME_LEN  = 32;
+const size_t MAX_NAME_LEN        = 32;
 
 const char *const  WHILE_WORD = "88888888";
 const char *const     IF_WORD = "96";
 const char *const   ELSE_WORD = "97";
 const char *const VARDEC_WORD = "~~~~";
 const char *const   SQRT_WORD = "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
+
+const char *const REV_OP_WORDS [] = {"", "(", ")", "[", "]", SQRT_WORD, "?", "!", "\"", ".", ",", ":", ";", "=", "-", "+", "*", "~", };
+
+const char *const TEMPFILENAME = "temp.txt";
 
 //DSL --------------------------------------------------------------------
 
@@ -203,6 +207,8 @@ TreeElem_t *GetFuncdec (Prog_t *prog);
 
 TreeElem_t *GetBody (Prog_t *prog);
 
+TreeElem_t *GetBodyWithoutBraces (Prog_t *prog);
+
 TreeElem_t *GetDec (Prog_t *prog);
 
 TreeElem_t *GetReturn (Prog_t *prog);
@@ -297,5 +303,46 @@ int Compile_call (Prog_t *prog, FILE *file, TreeElem_t *elem);
 int Compile_return (Prog_t *prog, FILE *file, TreeElem_t *elem);
 
 int Compile_hlt (FILE *file);
+
+
+int GenerateText (Prog_t *prog, const char *filename);
+
+int ReverseFile (const char *in_name, const char *out_name);
+
+int Reverse (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Reverse_fic (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Reverse_num (FILE *file, TreeElem_t *elem);
+
+int Reverse_var (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Reverse_if (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Reverse_while (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Reverse_op (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Reverse_onearg (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Reverse_twoarg (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Reverse_in (FILE *file);
+
+int Reverse_vardec (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Reverse_funcdec (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Reverse_decargs (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Reverse_call (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Reverse_callargs (Prog_t *prog, FILE *file, TreeElem_t *elem, int *first_arg);
+
+int Reverse_return (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+void Dec_to_rev_tern (int num, char *buf);
+
+int GetOpRank (int op);
 
 #endif

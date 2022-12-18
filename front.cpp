@@ -537,7 +537,7 @@ int Prog_dec_var (Prog_t *prog, char **ch_ptr, int start_of_area_index, int addn
         return COMP_ERROR;
     }
 
-    ProgAddVar  (prog, buf);
+    ProgAddVar (prog, buf);
     if (addnode) ProgAddNode (prog, TYPE_VARDEC, (int) (prog -> var_table_size - 1));
 
     return COMP_OK;
@@ -783,13 +783,7 @@ void Save_func_table (Prog_t *prog, FILE *file)
     fprintf (file, "%lld\n", prog -> func_table_size);
     for (size_t index = 0; index < prog -> func_table_size; index++)
     {
-        Func_t func = prog -> func_table [index];
-        fprintf (file, "\t%s %d", func.name, func.num_of_args);
-        for (int argnum = 0; argnum < func.num_of_args; argnum++)
-        {
-            fprintf (file, " %s", (prog -> var_table [func.args [argnum]]).name);
-        }
-        fprintf (file, "\n");
+        fprintf (file, "\t%s\n", (prog -> func_table [index]).name);
     }
     fprintf (file, "\n");
 }

@@ -6,7 +6,7 @@ TreeElem_t *GetProg (Prog_t *prog)
     TreeElem_t *ret  = FIC (NULL, NULL);
     TreeElem_t *elem = ret;
 
-    while (IsVardec  (CURRENT))
+    while (IsVardec (CURRENT))
     {
         L = GetDec (prog);
         
@@ -29,7 +29,7 @@ TreeElem_t *GetProg (Prog_t *prog)
         elem = R;
     }
 
-    R = GetBody (prog);
+    R = GetBodyWithoutBraces (prog);
     if (R == nullptr)
     {
         Tree_free_data (ret, NULL);
@@ -77,12 +77,27 @@ TreeElem_t *GetBody (Prog_t *prog)
     if (!IsOpenBrace (CURRENT)) return nullptr;
     prog -> index ++;
 
+    TreeElem_t *ret = GetBodyWithoutBraces (prog);
+    if (ret == nullptr) return nullptr;
+
+    if (!IsCloseBrace (CURRENT)) 
+    {
+        printf ("Syntax error: no closing bracket.\n");
+        Tree_free_data (ret, NULL);
+        return nullptr;
+    }
+    prog -> index ++;
+    return ret;
+}
+
+TreeElem_t *GetBodyWithoutBraces (Prog_t *prog)
+{
     TreeElem_t *elem = FIC (NULL, NULL);
     TreeElem_t *ret  = elem;
 
     while (1)
     {
-        if      (IsCloseBrace (CURRENT)) break;
+        if      (IsCloseBrace (CURRENT) || IsEndOfProg (CURRENT)) break;
         else if (IsIf         (CURRENT)) L = GetIf     (prog);
         else if (IsWhile      (CURRENT)) L = GetWhile  (prog);
         else if (IsVardec     (CURRENT)) L = GetDec    (prog);
@@ -109,10 +124,10 @@ TreeElem_t *GetBody (Prog_t *prog)
         RP = elem;
         elem = R;
     }
-    prog -> index ++;
+
     return ret;
 }
-
+    
 TreeElem_t *GetDec (Prog_t *prog)
 {
     if (!IsVardec (CURRENT)) return nullptr;

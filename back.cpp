@@ -60,29 +60,14 @@ char *Load_func_table (Prog_t *prog, char *ch)
     sscanf (ch, "%d%n", &num_of_funcs, &symbs_read);
     ch += symbs_read;
     char funcname [MAX_NAME_LEN] = "";
-    char  varname [MAX_NAME_LEN] = "";
-    int num_of_args = 0;
 
     for (; num_of_funcs > 0; num_of_funcs--)
     {
         ch = SkipSpacesAndComments (ch);
         sscanf (ch, "%s%n", funcname, &symbs_read);
         ch += symbs_read;
-        ch = SkipSpacesAndComments (ch);
-        sscanf (ch, "%d%n", &num_of_args, &symbs_read);
-        ch += symbs_read;
 
         ProgAddFunc (prog, funcname);
-        Func_t *func = &(prog -> func_table [prog -> func_table_size - 1]);
-
-        for (;num_of_args > 0; num_of_args--)
-        {
-            ch = SkipSpacesAndComments (ch);
-            sscanf (ch, "%s%n", varname, &symbs_read);
-            ch += symbs_read;
-
-            Func_add_arg (func, GetVarIndex (prog, varname));
-        }
     }
     return ch;
 }
@@ -201,7 +186,7 @@ int Get_var_indexes (Prog_t *prog)
     while (elem)
     {
         if (!L || !IsVardec (*L)) break;
-        count++;
+        (prog -> var_table [LVAL]).index_in_func = -(++count);
         elem = R;
     }
 
@@ -239,10 +224,13 @@ void Count_func_vars (Prog_t *prog, TreeElem_t *func)
 
     TreeElem_t *elem = func -> left;
     while (elem)
-    {
-        if (R) (prog -> var_table [R -> value]).index_in_func = ++count;
+    {   
+        if (TYPE == TYPE_VAR) (prog -> var_table [ VAL]).index_in_func = ++count;
+        if (R)                (prog -> var_table [RVAL]).index_in_func = ++count;
         elem = L;
     }
+
+    (prog -> func_table [func -> value]).num_of_args = count;
 
     Count_vars (prog, func -> right, &count, 0);
 

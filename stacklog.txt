@@ -1,10 +1,10 @@
 int StackDtor(Stack_t*) at stack/stack.cpp(62):
 ERROR: 0
-stack [00000059a4fff538] "&(cpu -> call_stk)" at int CpuCtor(Cpu_t*) at proc/proc.cpp(41):
+stack [00000066dddff808] "&(cpu -> call_stk)" at int CpuCtor(Cpu_t*) at proc/proc.cpp(41):
 {
 	size     = 0
 	capacity = 2
-	data [000001887cf01418]
+	data [00000176cebb1418]
 	{
 		 [0] = POISON
 		 [1] = POISON

@@ -1,0 +1,81 @@
+#ACCURACY 1000
+PUSH 0
+POP rdx
+PUSH 1
+POP rcx
+JMP main
+f0:
+PUSH 1
+POP rcx
+POP [rdx + 1]
+PUSH [rdx + 1]
+PUSH 1
+JBE l0
+PUSH 0
+JMP l1
+l0:
+PUSH 1
+l1:
+PUSH 0
+JE l2
+PUSH 1
+RET
+JMP l3
+l2:
+PUSH [rdx + 1]
+PUSH rcx
+PUSH [rdx + 1]
+PUSH 1
+SUB
+PUSH rdx
+PUSH 1
+PUSH rcx
+ADD
+ADD
+POP rdx
+CALL f0
+POP rax
+POP rcx
+PUSH rdx
+PUSH rcx
+PUSH 1
+ADD
+SUB
+POP rdx
+PUSH rax
+MUL
+RET
+l3:
+main:
+PUSH 0
+POP [1]      
+IN
+POP rax
+PUSH rax
+PUSH rax
+POP [1]      
+POP rax
+PUSH rcx
+PUSH [1]
+PUSH rdx
+PUSH 1
+PUSH rcx
+ADD
+ADD
+POP rdx
+CALL f0
+POP rax
+POP rcx
+PUSH rdx
+PUSH rcx
+PUSH 1
+ADD
+SUB
+POP rdx
+PUSH rax
+POP rax
+PUSH rax
+PUSH rax
+OUT
+POP rax
+HLT
