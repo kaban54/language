@@ -106,9 +106,16 @@ int Reverse_fic (Prog_t *prog, FILE *file, TreeElem_t *elem)
 
 int Reverse_num (FILE *file, TreeElem_t *elem)
 {   
+    int num = VAL;
+    if (num < 0)
+    {
+        fprintf (file, "{| ) ");
+        num = -num;
+    }
+
     char tern [BUFSIZE] = "";
     char buf  [BUFSIZE] = "";
-    Dec_to_rev_tern (VAL, tern);
+    Dec_to_rev_tern (num, tern);
 
     int len = (int) strlen (tern);
     int need_split = 0;
@@ -137,6 +144,8 @@ int Reverse_num (FILE *file, TreeElem_t *elem)
             fputs (buf, file);
         }
     }
+
+    if (num < 0) fprintf (file, "}");
 
     return COMP_OK;
 }
