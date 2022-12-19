@@ -351,7 +351,7 @@ TreeElem_t *GetSum (Prog_t *prog)
 
 TreeElem_t *GetTerm (Prog_t *prog)
 {
-    TreeElem_t *ret = GetSqrt (prog);
+    TreeElem_t *ret = GetPow (prog);
     if (ret == nullptr) return nullptr;
 
     TreeElem_t *elem = nullptr;
@@ -362,7 +362,7 @@ TreeElem_t *GetTerm (Prog_t *prog)
 
         prog -> index ++;
         
-        elem = GetSqrt (prog);
+        elem = GetPow (prog);
         if (elem == nullptr)
         {
             Tree_free_data (ret, NULL);
@@ -374,19 +374,23 @@ TreeElem_t *GetTerm (Prog_t *prog)
     return ret;
 }
 
-TreeElem_t *GetSqrt (Prog_t *prog)
+TreeElem_t *GetPow (Prog_t *prog)
 {
-    if (IsSqrt (CURRENT))
+    TreeElem_t *ret = GetBrack (prog);
+    if (IsPow (CURRENT))
     {
         prog -> index ++;
 
         TreeElem_t *elem = GetBrack (prog);
-        if (elem == nullptr) return nullptr;
-
-        return SQRT (elem);
+        if (elem == nullptr)
+        {
+            Tree_free_data (ret, NULL);
+            return nullptr;
+        }
+        ret = POW (ret, elem);
     }
 
-    return GetBrack (prog);
+    return ret;
 }
 
 TreeElem_t *GetBrack (Prog_t *prog)
@@ -404,12 +408,13 @@ TreeElem_t *GetFunc (Prog_t *prog)
         prog -> index ++;
         return IN;
     }
-    if (IsOut (CURRENT))
+    if (IsOneargOp (CURRENT))
     {
+        int op = CURRENT.value;
         prog -> index ++;
         TreeElem_t *elem = GetCond (prog);
         if (elem == nullptr) return nullptr;
-        return OUT (elem);
+        return CreateOp (op, elem, NULL);
     }
     if (IsVar (CURRENT))
     {

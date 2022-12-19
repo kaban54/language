@@ -65,7 +65,7 @@ compile: compile.cpp
 	$(CC) -o compile.exe compile.cpp $(CFLAGS)
 
 clean:
-	rm *.o
+	rm obj/*.o
 	clear
 	
 .PHONY: clean

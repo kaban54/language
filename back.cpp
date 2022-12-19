@@ -398,9 +398,7 @@ int Compile_op (Prog_t *prog, FILE *file, TreeElem_t *elem)
 
     Compile (prog, file, L);
 
-    if (VAL == OP_SQRT) return Compile_sqrt (file);
-    if (VAL == OP_OUT)  return Compile_out  (file);
-    if (VAL == OP_NOT)  return Compile_not  (prog, file);
+    if (IsOneargOp (*elem)) return Compile_onearg (prog, file, elem);
 
     Compile (prog, file, R);
 
@@ -425,9 +423,24 @@ int Compile_assign (Prog_t *prog, FILE *file, TreeElem_t *elem)
     return COMP_OK;
 }
 
+int Compile_onearg (Prog_t *prog, FILE *file, TreeElem_t *elem)
+{
+    if (VAL == OP_SQRT) return Compile_sqrt (file);
+    if (VAL == OP_OUT)  return Compile_out  (file);
+    if (VAL == OP_NOT)  return Compile_not  (prog, file);
+    if (VAL == OP_SIN)  return Compile_sin  (file);
+    return COMP_ERROR;
+}
+
 int Compile_sqrt (FILE *file)
 {
     fprintf (file, "SQRT\n");
+    return COMP_OK;
+}
+
+int Compile_sin (FILE *file)
+{
+    fprintf (file, "SIN\n");
     return COMP_OK;
 }
 
@@ -479,6 +492,10 @@ int Compile_arithm (FILE *file, TreeElem_t *elem)
         fprintf (file, "DIV\n");
         break;
     
+    case OP_POW:
+        fprintf (file, "POW\n");
+        break;
+
     default:
         break;
     }

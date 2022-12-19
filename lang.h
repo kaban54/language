@@ -17,7 +17,9 @@ const char *const     IF_WORD = "96";
 const char *const   ELSE_WORD = "97";
 const char *const VARDEC_WORD = "~~~~";
 const char *const   SQRT_WORD = "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
+const char *const    SIN_WORD = "19914";
 
+const char *const REV_SIN_WORD = "41991";
 const char *const REV_OP_WORDS [] = {"", "(", ")", "[", "]", SQRT_WORD, "?", "!", "\"", ".", ",", ":", ";", "=", "-", "+", "*", "~", };
 
 const char *const TEMPFILENAME = "temp.txt";
@@ -50,12 +52,14 @@ const char *const TEMPFILENAME = "temp.txt";
 #define      IsAnd(node) ((node).type == TYPE_OP &&  (node).value == OP_AND)
 #define IsAddOrSub(node) ((node).type == TYPE_OP && ((node).value == OP_ADD || (node).value == OP_SUB))
 #define IsMulOrDiv(node) ((node).type == TYPE_OP && ((node).value == OP_MUL || (node).value == OP_DIV))
+#define      IsPow(node) ((node).type == TYPE_OP &&  (node).value == OP_POW)
 #define     IsSqrt(node) ((node).type == TYPE_OP &&  (node).value == OP_SQRT)
 #define       IsIn(node) ((node).type == TYPE_OP &&  (node).value == OP_IN)
-#define      IsOut(node) ((node).type == TYPE_OP &&  (node).value == OP_OUT)
+#define IsOneargOp(node) ((node).type == TYPE_OP && \
+                         ((node).value == OP_OUT || (node).value == OP_SIN || (node).value == OP_SQRT || (node).value == OP_NOT))
 
 #define     IsComp(node) ((node).type == TYPE_OP &&  (node).value >=  8 && (node).value <= 13 )
-#define   IsArithm(node) ((node).type == TYPE_OP &&  (node).value >=  1 && (node).value <=  4 )
+#define   IsArithm(node) ((node).type == TYPE_OP &&  (node).value >=  1 && (node).value <=  4 || (node).value == OP_POW)
 #define    IsLogic(node) ((node).type == TYPE_OP && ((node).value == 15 || (node).value == 16))
 
 
@@ -65,6 +69,7 @@ const char *const TEMPFILENAME = "temp.txt";
 #define     OR(left, right) CreateOp (OP_OR    , left, right)
 #define    AND(left, right) CreateOp (OP_AND   , left, right)
 #define ASSIGN(left, right) CreateOp (OP_ASSIGN, left, right)
+#define    POW(left, right) CreateOp (OP_POW   , left, right)
 #define    OUT(node)        CreateOp (OP_OUT   , node, NULL)
 #define    NOT(node)        CreateOp (OP_NOT   , node, NULL)
 #define   SQRT(node)        CreateOp (OP_SQRT  , node, NULL)
@@ -230,7 +235,7 @@ TreeElem_t *GetSum (Prog_t *prog);
 
 TreeElem_t *GetTerm (Prog_t *prog);
 
-TreeElem_t *GetSqrt (Prog_t *prog);
+TreeElem_t *GetPow (Prog_t *prog);
 
 TreeElem_t *GetBrack (Prog_t *prog);
 
@@ -282,6 +287,10 @@ int Compile_while (Prog_t *prog, FILE *file, TreeElem_t *elem);
 int Compile_op (Prog_t *prog, FILE *file, TreeElem_t *elem);
 
 int Compile_assign (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Compile_onearg (Prog_t *prog, FILE *file, TreeElem_t *elem);
+
+int Compile_sin (FILE *file);
 
 int Compile_sqrt (FILE *file);
 

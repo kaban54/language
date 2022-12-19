@@ -202,6 +202,13 @@ int Reverse_op (Prog_t *prog, FILE *file, TreeElem_t *elem)
 
 int Reverse_onearg (Prog_t *prog, FILE *file, TreeElem_t *elem)
 {
+    if (VAL == OP_SIN)
+    {
+        fprintf (file, "%s {", REV_SIN_WORD);
+        Reverse (prog, file, L);
+        fprintf (file, "}");
+    }
+
     fprintf (file, "%s {", REV_OP_WORDS [VAL]);
     Reverse (prog, file, L);
     fprintf (file, "}");

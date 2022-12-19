@@ -282,6 +282,18 @@ int GetCode (Prog_t *prog, char *text)
             continue;
         }
 
+        if (*ch == '4')
+        {
+            err = Read_word (&ch, SIN_WORD);
+            if (err)
+            {
+                printf ("Syntax error: incorrect sqrt word.\n");
+                return err;
+            }
+            ProgAddNode (prog, TYPE_OP, OP_SIN);
+            continue;
+        }
+
         if (*ch == ',')
         {
             if (*(ch - 1) == '.')
@@ -338,6 +350,10 @@ int GetCode (Prog_t *prog, char *text)
 
         switch (*ch)
         {
+        case '%':
+            ProgAddNode (prog, TYPE_OP, OP_POW);
+            break;
+
         case '(':
             ProgAddNode (prog, TYPE_OP, OP_ADD);
             break;

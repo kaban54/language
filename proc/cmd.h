@@ -216,3 +216,30 @@ DEF_CMD (SQRT, 19, 0,
     StackPush (&(cpu -> stk),  x);
 
 })
+
+DEF_CMD (SIN, 21, 0,
+{
+    arg_t x = 0;
+    int err = OK;
+
+    err |= StackPop (&(cpu -> stk), &x);
+    if (err) return EMPTY_STACK;
+
+    x = (arg_t) (sin (((double) x) / cpu -> accuracy_coef) * cpu -> accuracy_coef); 
+
+    StackPush (&(cpu -> stk),  x);
+})
+
+DEF_CMD (POW, 22, 0, 
+{
+    int x1 = 0, x2 = 0;
+    int err = OK;
+
+    err |= StackPop (&(cpu -> stk), &x1);
+    err |= StackPop (&(cpu -> stk), &x2);
+
+    if (err) return EMPTY_STACK;
+
+    StackPush (&(cpu -> stk), (arg_t) (pow (((double) x2) / cpu -> accuracy_coef, ((double) x1) / cpu -> accuracy_coef) * cpu -> accuracy_coef));
+
+})
